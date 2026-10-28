@@ -9,16 +9,15 @@
       --bg1: #091a2d;
       --bg2: #123a5b;
       --panel: rgba(10, 20, 35, 0.82);
-      --panel-soft: rgba(18, 34, 54, 0.72);
       --glass: rgba(255,255,255,0.08);
       --gold: #ffd76a;
-      --gold-deep: #f3b11a;
       --green: #8ef0b1;
       --red: #ff8d8d;
-      --blue: #8ecbff;
       --sky: #dff4ff;
       --shadow: rgba(0, 0, 0, 0.35);
       --outline: rgba(255,255,255,0.12);
+      --mx: 0;
+      --my: 0;
     }
 
     * { box-sizing: border-box; }
@@ -66,7 +65,7 @@
 
     .brand small {
       opacity: 0.8;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
@@ -78,14 +77,22 @@
       gap: 10px;
     }
 
-    .badge {
-      display: inline-block;
-      min-width: 115px;
+    .badge,
+    select {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 999px;
       padding: 10px 14px;
       font-weight: 700;
+      color: white;
+    }
+
+    .badge {
+      min-width: 115px;
       text-align: center;
     }
 
@@ -93,6 +100,18 @@
       background: rgba(255, 107, 107, 0.12);
       border-color: rgba(255, 107, 107, 0.5);
       color: #ffd4d4;
+    }
+
+    select {
+      min-width: 120px;
+      padding-left: 16px;
+      padding-right: 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      appearance: none;
+      outline: none;
     }
 
     .game-layout {
@@ -108,11 +127,15 @@
     }
 
     .scene {
+      --scene-shift-x: calc(var(--mx) * 18px);
+      --scene-shift-y: calc(var(--my) * 12px);
       position: relative;
       height: 300px;
       overflow: hidden;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       background: linear-gradient(180deg, #7ec9ff 0%, #dff5ff 28%, #9fe2b3 28%, #326a46 100%);
+      transition: background 0.5s ease;
+      cursor: crosshair;
     }
 
     .scene-0 { background: linear-gradient(180deg, #7ec9ff 0%, #dff5ff 30%, #9fe2b3 30%, #2e6c42 100%); }
@@ -124,13 +147,32 @@
     .scene-6 { background: linear-gradient(180deg, #f1f4d2 0%, #d8ebff 30%, #8ac7dc 30%, #465f6d 100%); }
     .scene-7 { background: linear-gradient(180deg, #fff0b2 0%, #f8d062 30%, #d5722e 30%, #5e392d 100%); }
 
+    .scene::before,
+    .scene::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      transition: transform 0.2s ease-out;
+    }
+
+    .scene::before {
+      background: radial-gradient(circle at 50% 18%, rgba(255,255,255,0.42), transparent 28%);
+      transform: translate(var(--scene-shift-x), var(--scene-shift-y));
+    }
+
+    .scene::after {
+      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.08) 100%);
+      transform: translate(calc(var(--scene-shift-x) * -0.4), calc(var(--scene-shift-y) * -0.4));
+    }
+
     .sky-objects {
       position: absolute;
       inset: 0;
       pointer-events: none;
     }
 
-    .moon, .sun, .star, .sparkle {
+    .moon, .sun, .star, .sparkle, .gem {
       position: absolute;
       animation: floaty 6s ease-in-out infinite;
       filter: drop-shadow(0 0 18px rgba(255,255,255,0.5));
@@ -140,10 +182,11 @@
     .sun { right: 80px; top: 30px; font-size: 54px; }
     .star { font-size: 28px; opacity: 0.9; animation: twinkle 2s ease-in-out infinite; }
     .sparkle { font-size: 22px; opacity: 0.6; }
+    .gem { font-size: 24px; opacity: 0.75; }
 
     @keyframes floaty {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
+      0%, 100% { transform: translateY(0) translateX(0); }
+      50% { transform: translateY(-10px) translateX(6px); }
     }
 
     @keyframes twinkle {
@@ -157,6 +200,7 @@
       border-radius: 999px;
       opacity: 0.7;
       animation: drift 18s linear infinite;
+      transform: translate(var(--scene-shift-x), var(--scene-shift-y));
     }
 
     .cloud::before, .cloud::after {
@@ -177,8 +221,8 @@
     }
 
     @keyframes drift {
-      0% { transform: translateX(-80px); }
-      100% { transform: translateX(920px); }
+      0% { transform: translateX(-80px) translateY(0); }
+      100% { transform: translateX(920px) translateY(6px); }
     }
 
     .hill {
@@ -190,6 +234,7 @@
       background: rgba(15, 65, 34, 0.65);
       border-radius: 50% 50% 0 0 / 100% 100% 0 0;
       z-index: 1;
+      transform: translate(calc(var(--scene-shift-x) * 0.25), calc(var(--scene-shift-y) * 0.25));
     }
 
     .tree {
@@ -199,13 +244,14 @@
       font-size: 78px;
       z-index: 2;
       filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
+      transform: translate(calc(var(--scene-shift-x) * 0.5), calc(var(--scene-shift-y) * 0.5));
     }
 
     .bridge {
       position: absolute;
       left: 50%;
       bottom: 22px;
-      transform: translateX(-50%);
+      transform: translate(calc(-50% + var(--scene-shift-x) * 0.4), var(--scene-shift-y));
       font-size: 62px;
       z-index: 2;
       animation: floaty 4s ease-in-out infinite;
@@ -218,12 +264,13 @@
       font-size: 82px;
       z-index: 2;
       animation: floaty 5.5s ease-in-out infinite;
+      transform: translate(calc(var(--scene-shift-x) * 0.8), calc(var(--scene-shift-y) * 0.6));
     }
 
     .obstacle-wrap {
       position: absolute;
       left: 50%;
-      bottom: 26px;
+      bottom: 24px;
       transform: translateX(-50%);
       z-index: 5;
       display: flex;
@@ -234,7 +281,7 @@
 
     .chat-bubble {
       position: relative;
-      max-width: 260px;
+      max-width: 280px;
       background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(236,244,255,0.92));
       color: #13263f;
       border-radius: 16px;
@@ -247,11 +294,16 @@
       transform: translateY(10px) scale(0.96);
       transition: 0.24s ease;
       border: 1px solid rgba(18,42,69,0.08);
+      z-index: 2;
     }
 
     .chat-bubble.visible {
       opacity: 1;
       transform: translateY(0) scale(1);
+    }
+
+    .chat-bubble.persistent {
+      box-shadow: 0 22px 32px rgba(0,0,0,0.18);
     }
 
     .chat-bubble::after {
@@ -270,23 +322,57 @@
     .obstacle-box {
       width: 220px;
       text-align: center;
-      background: rgba(0,0,0,0.18);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 18px;
-      padding: 12px 18px;
+      background: linear-gradient(180deg, rgba(30,48,80,0.72), rgba(7,12,20,0.48));
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 22px;
+      padding: 14px 18px 12px;
       backdrop-filter: blur(4px);
-      box-shadow: 0 12px 22px rgba(0,0,0,0.18);
+      box-shadow: 0 15px 26px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.06);
       animation: bob 2.4s ease-in-out infinite;
       position: relative;
+      z-index: 2;
+    }
+
+    .obstacle-box::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
+    }
+
+    .avatar-ring {
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(142,203,255,0.14));
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 18px rgba(142,203,255,0.2), inset 0 0 18px rgba(255,255,255,0.14);
+    }
+
+    .obstacle-icon {
+      font-size: 48px;
+      display: block;
+      filter: drop-shadow(0 6px 20px rgba(255,255,255,0.25));
+    }
+
+    .obstacle-name {
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 1.15rem;
+      position: relative;
+      z-index: 1;
     }
 
     @keyframes bob {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-8px); }
     }
-
-    .obstacle-icon { font-size: 48px; margin-bottom: 4px; }
-    .obstacle-name { font-weight: 800; letter-spacing: 1px; font-size: 1.15rem; }
 
     .panel {
       padding: 22px;
@@ -531,7 +617,7 @@
     }
 
     .start-card {
-      width: min(500px, 90vw);
+      width: min(520px, 90vw);
       background: linear-gradient(180deg, rgba(17,31,47,0.96), rgba(12,22,34,0.96));
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 22px;
@@ -621,6 +707,18 @@
       </div>
 
       <div class="status-row">
+        <label>
+          <select id="levelSelect" aria-label="Select level">
+            <option value="0">Level 1</option>
+            <option value="1">Level 2</option>
+            <option value="2">Level 3</option>
+            <option value="3">Level 4</option>
+            <option value="4">Level 5</option>
+            <option value="5">Level 6</option>
+            <option value="6">Level 7</option>
+            <option value="7">Level 8</option>
+          </select>
+        </label>
         <span id="levelBadge" class="badge">Level 1 / 8</span>
         <span id="timerBadge" class="badge">Time: 180s</span>
         <span id="scoreBadge" class="badge">Score: 0</span>
@@ -637,6 +735,7 @@
             <div class="star" style="top: 45px; left: 340px;">✦</div>
             <div class="star" style="top: 100px; left: 520px;">✦</div>
             <div class="sparkle" style="top: 130px; left: 240px;">✨</div>
+            <div class="gem" style="top: 150px; left: 420px;">💎</div>
             <div class="cloud" style="width: 120px; height: 30px; left: 24px; top: 50px;"></div>
             <div class="cloud" style="width: 150px; height: 34px; left: 210px; top: 86px; animation-delay: 3s;"></div>
             <div class="cloud" style="width: 112px; height: 28px; left: 500px; top: 65px; animation-delay: 6s;"></div>
@@ -650,7 +749,7 @@
           <div class="obstacle-wrap">
             <div id="chatBubble" class="chat-bubble">Solve the puzzle to unlock the gate.</div>
             <div class="obstacle-box">
-              <div id="obstacleIcon" class="obstacle-icon">🧙</div>
+              <div class="avatar-ring"><div id="obstacleIcon" class="obstacle-icon">🧙</div></div>
               <div id="obstacleName" class="obstacle-name">Wizard</div>
             </div>
           </div>
@@ -736,10 +835,10 @@
       active: false,
       finished: false,
       difficulty: "medium",
-      leaderboard: loadLeaderboard()
+      leaderboard: loadLeaderboard(),
+      levelWasSelected: false
     };
 
-    const gameEl = document.getElementById("game");
     const sceneEl = document.getElementById("scene");
     const obstacleIconEl = document.getElementById("obstacleIcon");
     const obstacleNameEl = document.getElementById("obstacleName");
@@ -760,6 +859,7 @@
     const startBtn = document.getElementById("startBtn");
     const playerNameInput = document.getElementById("playerNameInput");
     const difficultySelect = document.getElementById("difficultySelect");
+    const levelSelect = document.getElementById("levelSelect");
 
     function loadLeaderboard() {
       try {
@@ -801,6 +901,7 @@
       timerBadge.classList.toggle("low", state.timer <= 20);
       roundValue.textContent = `${state.currentLevel + 1} / ${totalLevels}`;
       streakValue.textContent = String(state.bestStreak);
+      levelSelect.value = String(state.currentLevel);
     }
 
     function randomInt(min, max) {
@@ -816,10 +917,10 @@
         const a = randomInt(min, max);
         const b = randomInt(2, 5);
         const c = randomInt(2, 6);
-        const questionType = levelIndex % 3;
+        const qType = levelIndex % 3;
 
-        if (questionType === 0) return { question: `${a} + ${b} × ${c}`, answer: a + b * c };
-        if (questionType === 1) return { question: `${a * b} ÷ ${a} + ${c}`, answer: (a * b) / a + c };
+        if (qType === 0) return { question: `${a} + ${b} × ${c}`, answer: a + b * c };
+        if (qType === 1) return { question: `${a * b} ÷ ${a} + ${c}`, answer: (a * b) / a + c };
         return { question: `${a} - ${b} × ${c}`, answer: a - b * c };
       }
 
@@ -837,7 +938,6 @@
         return qTypes[levelIndex % qTypes.length];
       }
 
-      // medium
       switch (levelIndex % 4) {
         case 0: {
           const a = randomInt(3, max);
@@ -879,19 +979,28 @@
       sceneEl.className = `scene scene-${levelIndex}`;
     }
 
-    function showChat(text) {
+    function showChat(text, persistent = true) {
       chatBubble.textContent = text;
       chatBubble.classList.add("visible");
+      chatBubble.classList.toggle("persistent", persistent);
       clearTimeout(showChat.timeoutId);
-      showChat.timeoutId = setTimeout(() => {
-        chatBubble.classList.remove("visible");
-      }, 2600);
+      if (!persistent) {
+        showChat.timeoutId = setTimeout(() => {
+          chatBubble.classList.remove("visible");
+          chatBubble.classList.remove("persistent");
+        }, 1800);
+      }
+    }
+
+    function hideChat() {
+      chatBubble.classList.remove("visible");
+      chatBubble.classList.remove("persistent");
     }
 
     function buildLevel(levelIndex) {
       const obstacle = obstacleData[levelIndex];
-      state.currentQuestion = createQuestion(levelIndex);
       state.currentLevel = levelIndex;
+      state.currentQuestion = createQuestion(levelIndex);
       state.timer = difficultyProfiles[state.difficulty].time;
 
       setScene(levelIndex);
@@ -903,7 +1012,7 @@
       answerInput.disabled = false;
       answerInput.focus();
 
-      showChat(obstacle.chat);
+      showChat(obstacle.chat, true);
       resultEl.className = "result info";
       resultEl.textContent = "Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.";
 
@@ -981,17 +1090,18 @@
 
         resultEl.className = "result good";
         resultEl.textContent = "Correct! The obstacle is defeated and the path opens!";
-        showChat("Well done! You solved it!");
+        showChat("Well done! You solved it!", false);
         triggerSuccess();
 
         submitBtn.disabled = true;
         nextBtn.classList.remove("hidden");
+        setTimeout(() => hideChat(), 800);
       } else {
         state.streak = 0;
         streakValue.textContent = String(state.bestStreak);
         resultEl.className = "result bad";
         resultEl.textContent = "Not quite. Re-check the BODMAS order and try again.";
-        showChat("Hmm... try the order of operations again.");
+        showChat("Hmm... try the order of operations again.", true);
         triggerFail();
       }
     }
@@ -1047,7 +1157,8 @@
       nextBtn.classList.remove("hidden");
       nextBtn.textContent = "Play Again";
       nextBtn.onclick = () => resetGame();
-      showChat("Great effort! Check the leaderboard.");
+      hideChat();
+      showChat("Great effort! Check the leaderboard.", false);
     }
 
     function startGame() {
@@ -1056,14 +1167,15 @@
       state.difficulty = difficultySelect.value;
       state.score = 0;
       state.timer = difficultyProfiles[state.difficulty].time;
-      state.currentLevel = 0;
+      state.currentLevel = Number(levelSelect.value);
       state.streak = 0;
       state.bestStreak = 0;
       state.active = true;
       state.finished = false;
+      state.levelWasSelected = true;
 
       startOverlay.classList.add("hidden");
-      buildLevel(0);
+      buildLevel(state.currentLevel);
       startTimer();
       updateStatus();
     }
@@ -1071,16 +1183,44 @@
     function resetGame() {
       state.score = 0;
       state.timer = difficultyProfiles[state.difficulty].time;
-      state.currentLevel = 0;
+      state.currentLevel = Number(levelSelect.value);
       state.streak = 0;
       state.bestStreak = 0;
       state.finished = false;
       state.active = true;
       startOverlay.classList.add("hidden");
-      buildLevel(0);
+      buildLevel(state.currentLevel);
       startTimer();
       updateStatus();
     }
+
+    sceneEl.addEventListener("pointermove", (event) => {
+      const rect = sceneEl.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - 0.5;
+      const y = (event.clientY - rect.top) / rect.height - 0.5;
+      sceneEl.style.setProperty("--mx", x.toFixed(3));
+      sceneEl.style.setProperty("--my", y.toFixed(3));
+    });
+
+    sceneEl.addEventListener("pointerleave", () => {
+      sceneEl.style.setProperty("--mx", "0");
+      sceneEl.style.setProperty("--my", "0");
+    });
+
+    levelSelect.addEventListener("change", () => {
+      const nextLevel = Number(levelSelect.value);
+      state.currentLevel = nextLevel;
+      if (!state.active) {
+        startOverlay.classList.add("hidden");
+        state.active = true;
+      }
+      state.finished = false;
+      state.timer = difficultyProfiles[state.difficulty].time;
+      buildLevel(nextLevel);
+      clearInterval(state.intervalId);
+      startTimer();
+      updateStatus();
+    });
 
     startBtn.addEventListener("click", startGame);
     playerNameInput.addEventListener("keydown", (event) => {
@@ -1089,6 +1229,9 @@
     difficultySelect.addEventListener("change", () => {
       state.difficulty = difficultySelect.value;
       state.timer = difficultyProfiles[state.difficulty].time;
+      if (state.active) {
+        buildLevel(state.currentLevel);
+      }
       updateStatus();
     });
     submitBtn.addEventListener("click", submitAnswer);
@@ -1102,7 +1245,7 @@
     state.active = false;
     state.finished = false;
     startOverlay.classList.remove("hidden");
-    showChat("Enter your name and choose a difficulty!");
+    showChat("Enter your name and choose a difficulty!", true);
   </script>
 </body>
 </html>
