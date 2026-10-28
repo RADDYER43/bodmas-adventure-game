@@ -18,6 +18,7 @@
       --outline: rgba(255, 255, 255, 0.12);
       --mx: 0;
       --my: 0;
+      --progress: 0%;
     }
 
     * { box-sizing: border-box; }
@@ -45,6 +46,27 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 30px 70px rgba(0,0,0,0.4);
       overflow: hidden;
+      position: relative;
+    }
+
+    .app-shell.success-glow {
+      box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.9), 0 30px 70px rgba(0,0,0,0.4);
+      animation: successGlow 0.7s ease-out;
+    }
+
+    .app-shell.fail-glow {
+      box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.9), 0 30px 70px rgba(0,0,0,0.4);
+      animation: failGlow 0.7s ease-out;
+    }
+
+    @keyframes successGlow {
+      0% { box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.9), 0 30px 70px rgba(0,0,0,0.4); }
+      100% { box-shadow: 0 0 26px 16px rgba(142, 240, 177, 0), 0 30px 70px rgba(0,0,0,0.4); }
+    }
+
+    @keyframes failGlow {
+      0% { box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.85), 0 30px 70px rgba(0,0,0,0.4); }
+      100% { box-shadow: 0 0 26px 16px rgba(255, 141, 141, 0), 0 30px 70px rgba(0,0,0,0.4); }
     }
 
     .topbar {
@@ -78,7 +100,9 @@
     }
 
     .badge,
-    select {
+    select,
+    .toggle-btn,
+    .hint-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -102,6 +126,19 @@
       color: #ffd4d4;
     }
 
+    .toggle-btn,
+    .hint-btn {
+      cursor: pointer;
+      border-radius: 12px;
+      transition: transform 0.14s ease, background 0.2s ease;
+    }
+
+    .toggle-btn:hover,
+    .hint-btn:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.12);
+    }
+
     select {
       min-width: 120px;
       padding-left: 16px;
@@ -112,6 +149,40 @@
       cursor: pointer;
       appearance: none;
       outline: none;
+    }
+
+    .progress-shell {
+      width: 100%;
+      padding: 14px 22px 0;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .progress-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      color: #d9ebff;
+    }
+
+    .progress-track {
+      overflow: hidden;
+      height: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 999px;
+    }
+
+    .progress-fill {
+      width: var(--progress);
+      height: 100%;
+      background: linear-gradient(90deg, #8ef0b1, #7ad2ff, #ffd76a);
+      border-radius: inherit;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 18px rgba(122, 210, 255, 0.3);
     }
 
     .game-layout {
@@ -353,6 +424,12 @@
       background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(142,203,255,0.14));
       border: 2px solid rgba(255,255,255,0.18);
       box-shadow: 0 0 18px rgba(142,203,255,0.2), inset 0 0 18px rgba(255,255,255,0.14);
+      animation: monsterPulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes monsterPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
 
     .obstacle-icon {
@@ -419,6 +496,13 @@
       margin-bottom: 12px;
     }
 
+    .answer-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
     input, select {
       flex: 1;
       min-width: 170px;
@@ -476,38 +560,6 @@
     .info { color: var(--sky); }
 
     .hidden { display: none; }
-
-    .success-glow {
-      box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.8);
-      animation: pulseGreen 0.7s ease-out;
-    }
-
-    .fail-glow {
-      box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.7);
-      animation: pulseRed 0.7s ease-out;
-    }
-
-    .shake {
-      animation: shake 0.42s ease-in-out;
-    }
-
-    @keyframes pulseGreen {
-      0% { box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.8); }
-      100% { box-shadow: 0 0 20px 18px rgba(142, 240, 177, 0); }
-    }
-
-    @keyframes pulseRed {
-      0% { box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.8); }
-      100% { box-shadow: 0 0 20px 18px rgba(255, 141, 141, 0); }
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-10px); }
-      40% { transform: translateX(10px); }
-      60% { transform: translateX(-8px); }
-      80% { transform: translateX(8px); }
-    }
 
     .leaderboard-panel {
       background: rgba(16, 28, 40, 0.85);
@@ -621,13 +673,20 @@
       pointer-events: none;
     }
 
-    .start-card {
-      width: min(520px, 90vw);
+    .start-card,
+    .end-card {
+      width: min(560px, 90vw);
       background: linear-gradient(180deg, rgba(17,31,47,0.96), rgba(12,22,34,0.96));
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 22px;
       box-shadow: 0 30px 70px rgba(0,0,0,0.45);
       padding: 24px 22px;
+    }
+
+    .end-card h2 {
+      margin: 0 0 10px;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      text-align: center;
     }
 
     .start-card h2 {
@@ -636,7 +695,8 @@
       text-align: center;
     }
 
-    .start-card p {
+    .start-card p,
+    .end-card p {
       margin: 0 0 16px;
       text-align: center;
       color: #d8ebff;
@@ -667,6 +727,53 @@
       cursor: pointer;
     }
 
+    .summary-score {
+      display: block;
+      margin: 14px 0 8px;
+      color: var(--gold);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .review-list {
+      list-style: none;
+      margin: 18px 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .review-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .review-item strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--gold);
+    }
+
+    .review-item small {
+      display: block;
+      color: #dfeefc;
+      opacity: 0.85;
+    }
+
+    .end-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
     @media (max-width: 920px) {
       .game-layout {
         grid-template-columns: 1fr;
@@ -682,7 +789,7 @@
       body { padding: 10px; }
       .topbar { padding: 14px 16px; }
       .badge { min-width: 100px; }
-      .answer-row, .start-controls { flex-direction: column; }
+      .answer-row, .answer-actions, .start-controls { flex-direction: column; }
       input, button, select { width: 100%; }
     }
   </style>
@@ -700,6 +807,20 @@
           <option value="hard">Hard</option>
         </select>
         <button id="startBtn" class="starter-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="finalOverlay" class="overlay hidden">
+    <div class="end-card">
+      <h2 id="finalTitle">Adventure Complete!</h2>
+      <p id="finalSummary">Your final score is ready.</p>
+      <span id="finalScore" class="summary-score">0</span>
+      <ul id="reviewList" class="review-list"></ul>
+      <div class="end-actions">
+        <button id="nextAfterFinishBtn" class="primary hidden">Next Level</button>
+        <button id="backToLobbyBtn" class="secondary">Back to Lobby</button>
+        <button id="restartBtn" class="secondary">Play Again</button>
       </div>
     </div>
   </div>
@@ -727,6 +848,17 @@
         <span id="levelBadge" class="badge">Level 1 / 8</span>
         <span id="timerBadge" class="badge">Time: 180s</span>
         <span id="scoreBadge" class="badge">Score: 0</span>
+        <button id="soundToggleBtn" class="toggle-btn" type="button" aria-label="Toggle sound">🔊 Sound</button>
+      </div>
+    </div>
+
+    <div class="progress-shell">
+      <div class="progress-label-row">
+        <span>Progress</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-track" aria-label="Progress">
+        <div id="progressFill" class="progress-fill"></div>
       </div>
     </div>
 
@@ -773,7 +905,10 @@
             <button id="submitBtn" class="primary">Unlock</button>
           </div>
 
-          <button id="nextBtn" class="secondary hidden">Next Level</button>
+          <div class="answer-actions">
+            <button id="hintBtn" class="secondary" type="button">Hint</button>
+            <button id="nextBtn" class="secondary hidden">Next Level</button>
+          </div>
 
           <p id="result" class="result info">Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.</p>
         </div>
@@ -843,7 +978,10 @@
       finished: false,
       difficulty: 'medium',
       leaderboard: loadLeaderboard(),
-      levelWasSelected: false
+      levelWasSelected: false,
+      soundEnabled: true,
+      wrongAttempts: [],
+      started: false
     };
 
     const sceneEl = document.getElementById('scene');
@@ -863,10 +1001,22 @@
     const leaderboardList = document.getElementById('leaderboardList');
     const chatBubble = document.getElementById('chatBubble');
     const startOverlay = document.getElementById('startOverlay');
+    const finalOverlay = document.getElementById('finalOverlay');
+    const finalTitle = document.getElementById('finalTitle');
+    const finalSummary = document.getElementById('finalSummary');
+    const finalScore = document.getElementById('finalScore');
+    const reviewList = document.getElementById('reviewList');
     const startBtn = document.getElementById('startBtn');
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const hintBtn = document.getElementById('hintBtn');
     const playerNameInput = document.getElementById('playerNameInput');
     const difficultySelect = document.getElementById('difficultySelect');
     const levelSelect = document.getElementById('levelSelect');
+    const restartBtn = document.getElementById('restartBtn');
+    const backToLobbyBtn = document.getElementById('backToLobbyBtn');
+    const nextAfterFinishBtn = document.getElementById('nextAfterFinishBtn');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
 
     function loadLeaderboard() {
       try {
@@ -906,14 +1056,28 @@
       });
     }
 
+    function updateProgressBar() {
+      const completedRatio = state.finished
+        ? 1
+        : state.active
+          ? (state.currentLevel + 1) / totalLevels
+          : (state.currentLevel / totalLevels);
+      const value = Math.max(0, Math.min(1, completedRatio));
+      const percent = `${Math.round(value * 100)}%`;
+      document.documentElement.style.setProperty('--progress', percent);
+      progressFill.style.width = percent;
+      progressText.textContent = percent;
+    }
+
     function updateStatus() {
-      levelBadge.textContent = `Level ${state.currentLevel + 1} / ${totalLevels}`;
+      levelBadge.textContent = `Level ${Math.min(state.currentLevel + 1, totalLevels)} / ${totalLevels}`;
       scoreBadge.textContent = `Score: ${state.score}`;
       timerBadge.textContent = `Time: ${state.timer}s`;
       timerBadge.classList.toggle('low', state.timer <= 20);
       roundValue.textContent = `${Math.min(state.currentLevel + 1, totalLevels)} / ${totalLevels}`;
       streakValue.textContent = String(state.bestStreak);
       levelSelect.value = String(state.currentLevel);
+      updateProgressBar();
     }
 
     function randomInt(min, max) {
@@ -1039,26 +1203,38 @@
 
       submitBtn.disabled = false;
       nextBtn.classList.add('hidden');
-      nextBtn.textContent = 'Next Level';
-
-      showChat(obstacle.chat, true);
+      hintBtn.disabled = false;
       setResult('Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.', 'info');
       updateStatus();
     }
 
-    function startTimer() {
-      clearInterval(state.timerId);
-      state.timerId = setInterval(() => {
-        if (!state.active || state.finished) return;
+    function playTone(frequency, duration = 0.12, volume = 0.04, type = 'triangle') {
+      if (!state.soundEnabled) return;
 
-        state.timer = Math.max(0, state.timer - 1);
-        updateStatus();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
 
-        if (state.timer === 0) {
-          clearInterval(state.timerId);
-          endGame('Time is up! The adventure ends here.');
-        }
-      }, 1000);
+      const ctx = new AudioCtx();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+      gain.gain.value = volume;
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + duration);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+      setTimeout(() => ctx.close(), duration * 1000 + 50);
+    }
+
+    function playSuccessSound() {
+      playTone(660, 0.14, 0.05, 'triangle');
+      setTimeout(() => playTone(880, 0.12, 0.05, 'triangle'), 80);
+    }
+
+    function playFailSound() {
+      playTone(170, 0.18, 0.05, 'sawtooth');
     }
 
     function triggerSuccessGlow() {
@@ -1072,14 +1248,13 @@
     function triggerFailGlow() {
       const shell = document.querySelector('.app-shell');
       shell.classList.remove('fail-glow');
-      shell.classList.remove('shake');
       void shell.offsetWidth;
       shell.classList.add('fail-glow');
-      shell.classList.add('shake');
-      setTimeout(() => {
-        shell.classList.remove('fail-glow');
-        shell.classList.remove('shake');
-      }, 700);
+      setTimeout(() => shell.classList.remove('fail-glow'), 700);
+    }
+
+    function updateSoundButton() {
+      soundToggleBtn.textContent = state.soundEnabled ? '🔊 Sound' : '🔇 Mute';
     }
 
     function addScoreToLeaderboard() {
@@ -1091,33 +1266,76 @@
       renderLeaderboard();
     }
 
-    function endGame(message) {
+    function makeReviewFeedback(question, submitted, expected) {
+      const q = question.toLowerCase();
+      const diff = Math.abs(submitted - expected);
+
+      if (q.includes('(') || q.includes(')')) {
+        return 'Do the bracketed part first before anything else.';
+      }
+      if (q.includes('×') && (q.includes('+') || q.includes('-'))) {
+        return 'Multiplication happens before addition or subtraction.';
+      }
+      if (q.includes('÷') && (q.includes('+') || q.includes('-'))) {
+        return 'Division should be solved before the final add/subtract step.';
+      }
+      if (diff > 2) {
+        return 'Try breaking the expression into smaller steps and check each one carefully.';
+      }
+      return 'Check the order of operations again and recalculate step by step.';
+    }
+
+    function showFinalSummary() {
+      const wrongEntries = state.wrongAttempts.length ? state.wrongAttempts : [{ question: 'No major mistakes this round!', answer: 'Nice work', feedback: 'Keep using the same order of operations strategy.' }];
+
+      finalSummary.textContent = state.finished
+        ? `${state.playerName} finished with ${state.score} points.`
+        : `${state.playerName} saved a strong score.`;
+
+      finalScore.textContent = `${state.score}`;
+      finalTitle.textContent = state.finished ? 'Adventure Complete!' : 'Round Summary';
+
+      reviewList.innerHTML = '';
+      wrongEntries.forEach((entry, index) => {
+        const li = document.createElement('li');
+        li.className = 'review-item';
+        li.innerHTML = `
+          <strong>${index + 1}. ${entry.question}</strong>
+          <small>Your answer: ${entry.answer} — ${entry.feedback}</small>
+        `;
+        reviewList.appendChild(li);
+      });
+
+      nextAfterFinishBtn.classList.toggle('hidden', state.currentLevel >= totalLevels - 1);
+      finalOverlay.classList.remove('hidden');
+    }
+
+    function endGame(message = 'The adventure has ended.') {
       state.active = false;
       state.finished = true;
       clearInterval(state.timerId);
       addScoreToLeaderboard();
+      showFinalSummary();
 
-      setResult(`Final score: ${state.score}. ${message}`, 'good');
       storyEl.textContent = message;
       questionEl.textContent = 'GAME OVER';
       answerInput.value = '';
       answerInput.disabled = true;
       submitBtn.disabled = true;
-      nextBtn.textContent = 'Play Again';
-      nextBtn.classList.remove('hidden');
-      nextBtn.onclick = resetGame;
-      showChat('Great effort! Check the leaderboard and try again.', false);
+      hintBtn.disabled = true;
+      nextBtn.classList.add('hidden');
       updateStatus();
     }
 
     function handleNextLevel() {
       if (state.finished) {
+        finalOverlay.classList.add('hidden');
         resetGame();
         return;
       }
 
       if (state.currentLevel >= totalLevels - 1) {
-        endGame('You completed the adventure!');
+        endGame('You completed every level!');
         return;
       }
 
@@ -1133,6 +1351,7 @@
       if (raw === '' || Number.isNaN(Number(raw))) {
         setResult('Please enter a valid number before unlocking the obstacle.', 'bad');
         triggerFailGlow();
+        playFailSound();
         return;
       }
 
@@ -1150,36 +1369,63 @@
         setResult(`Correct! +${earned} points. The path opens for you.`, 'good');
         showChat('Well done! You solved it.', false);
         triggerSuccessGlow();
+        playSuccessSound();
 
         submitBtn.disabled = true;
         answerInput.disabled = true;
         nextBtn.classList.remove('hidden');
-        nextBtn.onclick = handleNextLevel;
+        hintBtn.disabled = true;
         state.active = false;
         clearInterval(state.timerId);
         updateStatus();
       } else {
         state.streak = 0;
+        const entry = {
+          question: state.currentQuestion.question,
+          answer: raw,
+          feedback: makeReviewFeedback(state.currentQuestion.question, submitted, expected)
+        };
+        state.wrongAttempts.push(entry);
+
         setResult('Not quite. Re-check the BODMAS order and try again.', 'bad');
         showChat('The puzzle is still active. Try again.', true);
         triggerFailGlow();
+        playFailSound();
         answerInput.value = '';
         answerInput.focus();
       }
     }
 
+    function startTimer() {
+      clearInterval(state.timerId);
+      state.timerId = setInterval(() => {
+        if (!state.active || state.finished) return;
+
+        state.timer = Math.max(0, state.timer - 1);
+        updateStatus();
+
+        if (state.timer === 0) {
+          clearInterval(state.timerId);
+          endGame('Time is up! The adventure ends here.');
+        }
+      }, 1000);
+    }
+
     function startGame() {
       const name = playerNameInput.value.trim();
-      const safeName = name ? name.slice(0, 16) : 'Player 1';
-      state.playerName = safeName;
+      const cleanName = name ? name.slice(0, 16) : 'Player 1';
+      state.playerName = cleanName;
       state.difficulty = difficultySelect.value;
       state.score = 0;
       state.streak = 0;
       state.bestStreak = 0;
       state.finished = false;
       state.active = true;
+      state.started = true;
       state.currentLevel = Number(levelSelect.value || 0);
       state.timer = difficultyProfiles[state.difficulty].time;
+      state.wrongAttempts = [];
+      finalOverlay.classList.add('hidden');
       startOverlay.classList.add('hidden');
       buildLevel(state.currentLevel);
       startTimer();
@@ -1193,19 +1439,47 @@
       state.bestStreak = 0;
       state.finished = false;
       state.active = false;
+      state.started = false;
       state.currentLevel = Number(levelSelect.value || 0);
       state.timer = difficultyProfiles[state.difficulty].time;
-      answerInput.disabled = false;
-      submitBtn.disabled = false;
+      state.wrongAttempts = [];
+      answerInput.disabled = true;
+      submitBtn.disabled = true;
+      hintBtn.disabled = true;
       nextBtn.classList.add('hidden');
       startOverlay.classList.remove('hidden');
+      finalOverlay.classList.add('hidden');
       setResult('Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.', 'info');
       updateStatus();
       showChat('Enter your name and choose a difficulty to begin.', true);
     }
 
+    function showHint() {
+      if (!state.active || state.finished) return;
+      const expression = state.currentQuestion.question;
+      let hint = 'Start with the operation that has highest priority in BODMAS.';
+      if (expression.includes('(')) hint = 'Solve the brackets first, then continue with the rest of the expression.';
+      else if (expression.includes('×') || expression.includes('÷')) hint = 'Check for multiplication or division before addition or subtraction.';
+      else if (expression.includes('+') || expression.includes('-')) hint = 'Once you handle the brackets and times/divide, finish with addition or subtraction.';
+      setResult('Hint: ' + hint, 'info');
+      showChat(hint, true);
+    }
+
     function setupEvents() {
       startBtn.addEventListener('click', startGame);
+      restartBtn.addEventListener('click', () => {
+        finalOverlay.classList.add('hidden');
+        startGame();
+      });
+      backToLobbyBtn.addEventListener('click', () => {
+        finalOverlay.classList.add('hidden');
+        resetGame();
+      });
+      nextAfterFinishBtn.addEventListener('click', () => {
+        finalOverlay.classList.add('hidden');
+        handleNextLevel();
+      });
+
       playerNameInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') startGame();
       });
@@ -1213,7 +1487,7 @@
       difficultySelect.addEventListener('change', () => {
         state.difficulty = difficultySelect.value;
         state.timer = difficultyProfiles[state.difficulty].time;
-        if (!state.active) {
+        if (!state.active && !state.finished) {
           buildLevel(state.currentLevel);
         }
         updateStatus();
@@ -1228,12 +1502,11 @@
       });
 
       submitBtn.addEventListener('click', submitAnswer);
-      nextBtn.addEventListener('click', () => {
-        if (state.finished) {
-          resetGame();
-        } else {
-          handleNextLevel();
-        }
+      nextBtn.addEventListener('click', handleNextLevel);
+      hintBtn.addEventListener('click', showHint);
+      soundToggleBtn.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        updateSoundButton();
       });
 
       answerInput.addEventListener('keydown', (event) => {
@@ -1260,11 +1533,13 @@
       difficultySelect.value = 'medium';
       state.difficulty = 'medium';
       state.timer = difficultyProfiles.medium.time;
+      updateSoundButton();
       buildLevel(0);
       state.active = false;
       state.finished = false;
       answerInput.disabled = true;
       submitBtn.disabled = true;
+      hintBtn.disabled = true;
       nextBtn.classList.add('hidden');
       updateStatus();
       showChat('Enter your name and choose a difficulty to begin.', true);
