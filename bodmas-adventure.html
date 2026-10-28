@@ -102,7 +102,8 @@
     .badge,
     select,
     .toggle-btn,
-    .hint-btn {
+    .hint-btn,
+    .action-btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -127,14 +128,16 @@
     }
 
     .toggle-btn,
-    .hint-btn {
+    .hint-btn,
+    .action-btn {
       cursor: pointer;
       border-radius: 12px;
       transition: transform 0.14s ease, background 0.2s ease;
     }
 
     .toggle-btn:hover,
-    .hint-btn:hover {
+    .hint-btn:hover,
+    .action-btn:hover {
       transform: translateY(-1px);
       background: rgba(255,255,255,0.12);
     }
@@ -820,7 +823,7 @@
       <div class="end-actions">
         <button id="nextAfterFinishBtn" class="primary hidden">Next Level</button>
         <button id="backToLobbyBtn" class="secondary">Back to Lobby</button>
-        <button id="restartBtn" class="secondary">Play Again</button>
+        <button id="finalRestartBtn" class="secondary">Play Again</button>
       </div>
     </div>
   </div>
@@ -845,6 +848,8 @@
             <option value="7">Level 8</option>
           </select>
         </label>
+        <button id="switchLevelBtn" class="toggle-btn" type="button">Switch Level</button>
+        <button id="headerRestartBtn" class="toggle-btn" type="button">↻ Restart</button>
         <span id="levelBadge" class="badge">Level 1 / 8</span>
         <span id="timerBadge" class="badge">Time: 180s</span>
         <span id="scoreBadge" class="badge">Score: 0</span>
@@ -978,50 +983,52 @@
       finished: false,
       difficulty: 'medium',
       leaderboard: loadLeaderboard(),
-      levelWasSelected: false,
       soundEnabled: true,
       wrongAttempts: [],
       started: false
     };
 
-    const sceneEl = document.getElementById('scene');
-    const obstacleIconEl = document.getElementById('obstacleIcon');
-    const obstacleNameEl = document.getElementById('obstacleName');
-    const storyEl = document.getElementById('story');
-    const questionEl = document.getElementById('question');
-    const answerInput = document.getElementById('answerInput');
-    const submitBtn = document.getElementById('submitBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const resultEl = document.getElementById('result');
-    const levelBadge = document.getElementById('levelBadge');
-    const scoreBadge = document.getElementById('scoreBadge');
-    const timerBadge = document.getElementById('timerBadge');
-    const roundValue = document.getElementById('roundValue');
-    const streakValue = document.getElementById('streakValue');
-    const leaderboardList = document.getElementById('leaderboardList');
-    const chatBubble = document.getElementById('chatBubble');
-    const startOverlay = document.getElementById('startOverlay');
-    const finalOverlay = document.getElementById('finalOverlay');
-    const finalTitle = document.getElementById('finalTitle');
-    const finalSummary = document.getElementById('finalSummary');
-    const finalScore = document.getElementById('finalScore');
-    const reviewList = document.getElementById('reviewList');
-    const startBtn = document.getElementById('startBtn');
-    const soundToggleBtn = document.getElementById('soundToggleBtn');
-    const hintBtn = document.getElementById('hintBtn');
-    const playerNameInput = document.getElementById('playerNameInput');
-    const difficultySelect = document.getElementById('difficultySelect');
-    const levelSelect = document.getElementById('levelSelect');
-    const restartBtn = document.getElementById('restartBtn');
-    const backToLobbyBtn = document.getElementById('backToLobbyBtn');
-    const nextAfterFinishBtn = document.getElementById('nextAfterFinishBtn');
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
+    const els = {
+      scene: document.getElementById('scene'),
+      obstacleIcon: document.getElementById('obstacleIcon'),
+      obstacleName: document.getElementById('obstacleName'),
+      story: document.getElementById('story'),
+      question: document.getElementById('question'),
+      answerInput: document.getElementById('answerInput'),
+      submitBtn: document.getElementById('submitBtn'),
+      nextBtn: document.getElementById('nextBtn'),
+      result: document.getElementById('result'),
+      levelBadge: document.getElementById('levelBadge'),
+      scoreBadge: document.getElementById('scoreBadge'),
+      timerBadge: document.getElementById('timerBadge'),
+      roundValue: document.getElementById('roundValue'),
+      streakValue: document.getElementById('streakValue'),
+      leaderboardList: document.getElementById('leaderboardList'),
+      chatBubble: document.getElementById('chatBubble'),
+      startOverlay: document.getElementById('startOverlay'),
+      finalOverlay: document.getElementById('finalOverlay'),
+      finalTitle: document.getElementById('finalTitle'),
+      finalSummary: document.getElementById('finalSummary'),
+      finalScore: document.getElementById('finalScore'),
+      reviewList: document.getElementById('reviewList'),
+      levelSelect: document.getElementById('levelSelect'),
+      soundToggleBtn: document.getElementById('soundToggleBtn'),
+      progressFill: document.getElementById('progressFill'),
+      progressText: document.getElementById('progressText'),
+      switchLevelBtn: document.getElementById('switchLevelBtn'),
+      headerRestartBtn: document.getElementById('headerRestartBtn'),
+      finalRestartBtn: document.getElementById('finalRestartBtn'),
+      startBtn: document.getElementById('startBtn'),
+      playerNameInput: document.getElementById('playerNameInput'),
+      difficultySelect: document.getElementById('difficultySelect'),
+      backToLobbyBtn: document.getElementById('backToLobbyBtn'),
+      nextAfterFinishBtn: document.getElementById('nextAfterFinishBtn')
+    };
 
     function loadLeaderboard() {
       try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? JSON.parse(saved) : [];
+        const base = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return Array.isArray(base) ? base : [];
       } catch (error) {
         return [];
       }
@@ -1029,523 +1036,410 @@
 
     function saveLeaderboard() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.leaderboard.slice(0, 8)));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.leaderboard));
       } catch (error) {
-        // Ignore storage failures.
+        // ignore localStorage failures
       }
-    }
-
-    function renderLeaderboard() {
-      leaderboardList.innerHTML = '';
-      const top = state.leaderboard.slice(0, 5);
-
-      if (!top.length) {
-        const li = document.createElement('li');
-        li.innerHTML = '<span class="name"><span class="rank">#</span> No scores yet</span><span class="score">0</span>';
-        leaderboardList.appendChild(li);
-        return;
-      }
-
-      top.forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span class="name"><span class="rank">${index + 1}</span> ${entry.name}</span>
-          <span class="score">${entry.score}</span>
-        `;
-        leaderboardList.appendChild(li);
-      });
-    }
-
-    function updateProgressBar() {
-      const completedRatio = state.finished
-        ? 1
-        : state.active
-          ? (state.currentLevel + 1) / totalLevels
-          : (state.currentLevel / totalLevels);
-      const value = Math.max(0, Math.min(1, completedRatio));
-      const percent = `${Math.round(value * 100)}%`;
-      document.documentElement.style.setProperty('--progress', percent);
-      progressFill.style.width = percent;
-      progressText.textContent = percent;
-    }
-
-    function updateStatus() {
-      levelBadge.textContent = `Level ${Math.min(state.currentLevel + 1, totalLevels)} / ${totalLevels}`;
-      scoreBadge.textContent = `Score: ${state.score}`;
-      timerBadge.textContent = `Time: ${state.timer}s`;
-      timerBadge.classList.toggle('low', state.timer <= 20);
-      roundValue.textContent = `${Math.min(state.currentLevel + 1, totalLevels)} / ${totalLevels}`;
-      streakValue.textContent = String(state.bestStreak);
-      levelSelect.value = String(state.currentLevel);
-      updateProgressBar();
     }
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function normalizeAnswer(value) {
-      return Number(Math.round(value * 1000) / 1000);
+    function clampLevel(level) {
+      const value = Number(level);
+      if (!Number.isFinite(value)) return 0;
+      return Math.max(0, Math.min(totalLevels - 1, value));
     }
 
-    function createQuestion(levelIndex) {
+    function clearTimer() {
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+    }
+
+    function setResult(type, message) {
+      els.result.className = `result ${type}`;
+      els.result.textContent = message;
+    }
+
+    function showChatBubble(message, persistent = false) {
+      els.chatBubble.textContent = message;
+      els.chatBubble.classList.add('visible');
+      els.chatBubble.classList.toggle('persistent', persistent);
+    }
+
+    function hideChatBubble() {
+      els.chatBubble.classList.remove('visible');
+    }
+
+    function updateDifficultySettings() {
+      const profile = difficultyProfiles[state.difficulty];
+      state.timer = profile.time;
+      els.timerBadge.textContent = `Time: ${state.timer}s`;
+      els.timerBadge.classList.toggle('low', state.timer <= 15);
+    }
+
+    function updateHUD() {
+      const profile = difficultyProfiles[state.difficulty];
+      const levelIndex = state.currentLevel + 1;
+      els.levelBadge.textContent = `Level ${levelIndex} / ${totalLevels}`;
+      els.scoreBadge.textContent = `Score: ${state.score}`;
+      els.timerBadge.textContent = `Time: ${state.timer}s`;
+      els.roundValue.textContent = `${levelIndex} / ${totalLevels}`;
+      els.streakValue.textContent = String(state.bestStreak);
+      els.timerBadge.classList.toggle('low', state.timer <= 15);
+
+      const progress = ((state.currentLevel + (state.finished ? 1 : 0)) / totalLevels) * 100;
+      const finalProgress = Math.min(100, Math.max(0, progress));
+      document.documentElement.style.setProperty('--progress', `${finalProgress}%`);
+      els.progressFill.style.width = `${finalProgress}%`;
+      els.progressText.textContent = `${Math.round(finalProgress)}%`;
+
+      els.levelSelect.value = String(state.currentLevel);
+      els.levelSelect.disabled = !state.started;
+    }
+
+    function renderQuestion() {
+      if (!state.currentQuestion) return;
+      const { text, answer, hint } = state.currentQuestion;
+      els.question.textContent = text;
+      els.answerInput.value = '';
+      els.answerInput.focus();
+      setResult('info', hint || 'Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.');
+      els.submitBtn.disabled = false;
+      els.nextBtn.classList.add('hidden');
+    }
+
+    function buildQuestion(levelIndex = 0) {
       const profile = difficultyProfiles[state.difficulty];
       const min = profile.randomRange[0];
       const max = profile.randomRange[1];
+      const baseA = randomInt(min, max);
+      const baseB = randomInt(min, max);
+      const baseC = randomInt(min, max);
+      const baseD = randomInt(min, max);
 
-      if (state.difficulty === 'easy') {
-        const a = randomInt(min, max);
-        const b = randomInt(2, 5);
-        const c = randomInt(2, 6);
-        const type = levelIndex % 3;
+      let expr = `${baseA} + ${baseB} × ${baseC}`;
+      let answer = baseA + (baseB * baseC);
+      let hint = 'Do the multiplication before the addition.';
 
-        if (type === 0) return { question: `${a} + ${b} × ${c}`, answer: normalizeAnswer(a + b * c) };
-        if (type === 1) return { question: `${a * b} ÷ ${a} + ${c}`, answer: normalizeAnswer((a * b) / a + c) };
-        return { question: `${a} - ${b} × ${c}`, answer: normalizeAnswer(a - b * c) };
+      if (profile.brackets && ((levelIndex + 1) % 2 === 0 || levelIndex >= 3)) {
+        expr = `(${baseA} + ${baseB}) × ${baseC}`;
+        answer = (baseA + baseB) * baseC;
+        hint = 'Solve the brackets first, then multiply.';
       }
 
-      if (state.difficulty === 'hard') {
-        const a = randomInt(3, max);
-        const b = randomInt(2, max - 1);
-        const c = randomInt(2, max);
-        const d = randomInt(2, max);
-        const patterns = [
-          { question: `(${a} + ${b}) × ${c} - ${d}`, answer: normalizeAnswer((a + b) * c - d) },
-          { question: `${a * c} ÷ ${a} + ${b} × (${d} + ${c})`, answer: normalizeAnswer((a * c) / a + b * (d + c)) },
-          { question: `${(a + b) * (c + 2)} ÷ (${a} + ${b}) + ${d}`, answer: normalizeAnswer(((a + b) * (c + 2)) / (a + b) + d) },
-          { question: `(${a} + ${b}) × (${c} - ${d})`, answer: normalizeAnswer((a + b) * (c - d)) }
-        ];
-        return patterns[levelIndex % patterns.length];
+      if (profile.brackets && levelIndex >= 5) {
+        const divisor = randomInt(2, 4);
+        const dividend = divisor * randomInt(3, 9);
+        const x = randomInt(min, max);
+        const y = randomInt(min, max);
+        expr = `${dividend} ÷ ${divisor} + ${x} × ${y}`;
+        answer = (dividend / divisor) + (x * y);
+        hint = 'Divide or multiply before adding.';
       }
 
-      switch (levelIndex % 4) {
-        case 0: {
-          const a = randomInt(3, max);
-          const b = randomInt(2, max);
-          const c = randomInt(2, max);
-          return { question: `${a} + ${b} × ${c}`, answer: normalizeAnswer(a + b * c) };
-        }
-        case 1: {
-          const x = randomInt(8, 15);
-          const y = randomInt(2, max);
-          const z = randomInt(2, max);
-          return { question: `${x} - ${y} × ${z}`, answer: normalizeAnswer(x - y * z) };
-        }
-        case 2: {
-          const p = randomInt(3, max);
-          const q = randomInt(2, max);
-          const r = randomInt(2, max);
-          return { question: `(${p} + ${q}) × ${r}`, answer: normalizeAnswer((p + q) * r) };
-        }
-        default: {
-          const d = randomInt(3, max);
-          const e = randomInt(2, max);
-          const f = randomInt(2, max);
-          return { question: `${d * e} ÷ ${d} + ${f}`, answer: normalizeAnswer((d * e) / d + f) };
-        }
+      if (state.started && levelIndex > 0 && levelIndex % 2 === 0 && profile.brackets) {
+        const p = randomInt(2, 5);
+        const q = randomInt(2, 5);
+        expr = `${baseA} × (${baseB} + ${baseC}) - ${p * q}`;
+        answer = baseA * (baseB + baseC) - (p * q);
+        hint = 'Work inside the bracket before multiplying and subtracting.';
       }
+
+      return {
+        text: expr,
+        answer: Number(answer),
+        hint
+      };
     }
 
-    function setScene(levelIndex) {
-      const theme = sceneThemes[levelIndex] || sceneThemes[0];
-      const moonEl = sceneEl.querySelector('.moon');
-      const treeEl = sceneEl.querySelector('.tree');
-      const bridgeEl = sceneEl.querySelector('.bridge');
-      const castleEl = sceneEl.querySelector('.castle');
+    function updateScene() {
+      const levelTheme = sceneThemes[state.currentLevel] || sceneThemes[0];
+      const obstacle = obstacleData[state.currentLevel] || obstacleData[0];
+      const sceneClass = `scene scene-${state.currentLevel}`;
 
-      if (moonEl) moonEl.textContent = theme.moon;
-      if (treeEl) treeEl.textContent = theme.tree;
-      if (bridgeEl) bridgeEl.textContent = theme.bridge;
-      if (castleEl) castleEl.textContent = theme.castle;
+      els.scene.className = sceneClass;
+      els.obstacleIcon.textContent = obstacle.icon;
+      els.obstacleName.textContent = obstacle.name;
+      els.story.textContent = obstacle.story;
+      showChatBubble(obstacle.chat, true);
 
-      sceneEl.className = `scene scene-${levelIndex}`;
+      const prefix = `scene-${state.currentLevel}`;
+      els.scene.classList.remove('scene-0', 'scene-1', 'scene-2', 'scene-3', 'scene-4', 'scene-5', 'scene-6', 'scene-7');
+      els.scene.classList.add(prefix);
     }
 
-    function showChat(text, persistent = true) {
-      chatBubble.textContent = text;
-      chatBubble.classList.add('visible');
-      chatBubble.classList.toggle('persistent', persistent);
-      clearTimeout(showChat.timeoutId);
+    function updateLeaderboard() {
+      const rows = [...state.leaderboard]
+        .sort((a, b) => (b.score || 0) - (a.score || 0))
+        .slice(0, 5);
 
-      if (!persistent) {
-        showChat.timeoutId = setTimeout(() => {
-          chatBubble.classList.remove('visible');
-          chatBubble.classList.remove('persistent');
-        }, 1800);
-      }
-    }
-
-    function hideChat() {
-      chatBubble.classList.remove('visible');
-      chatBubble.classList.remove('persistent');
-    }
-
-    function setResult(message, type = 'info') {
-      resultEl.className = `result ${type}`;
-      resultEl.textContent = message;
-    }
-
-    function buildLevel(levelIndex) {
-      const safeIndex = Math.max(0, Math.min(levelIndex, totalLevels - 1));
-      const obstacle = obstacleData[safeIndex % obstacleData.length];
-      state.currentLevel = safeIndex;
-      state.currentQuestion = createQuestion(safeIndex);
-      state.timer = difficultyProfiles[state.difficulty].time;
-
-      setScene(safeIndex);
-      obstacleIconEl.textContent = obstacle.icon;
-      obstacleNameEl.textContent = obstacle.name;
-      storyEl.textContent = obstacle.story;
-      questionEl.textContent = state.currentQuestion.question;
-      answerInput.value = '';
-      answerInput.disabled = false;
-      answerInput.focus();
-
-      submitBtn.disabled = false;
-      nextBtn.classList.add('hidden');
-      hintBtn.disabled = false;
-      setResult('Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.', 'info');
-      updateStatus();
-    }
-
-    function playTone(frequency, duration = 0.12, volume = 0.04, type = 'triangle') {
-      if (!state.soundEnabled) return;
-
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-
-      const ctx = new AudioCtx();
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      oscillator.type = type;
-      oscillator.frequency.value = frequency;
-      gain.gain.value = volume;
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      oscillator.start();
-      oscillator.stop(ctx.currentTime + duration);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
-      setTimeout(() => ctx.close(), duration * 1000 + 50);
-    }
-
-    function playSuccessSound() {
-      playTone(660, 0.14, 0.05, 'triangle');
-      setTimeout(() => playTone(880, 0.12, 0.05, 'triangle'), 80);
-    }
-
-    function playFailSound() {
-      playTone(170, 0.18, 0.05, 'sawtooth');
-    }
-
-    function triggerSuccessGlow() {
-      const shell = document.querySelector('.app-shell');
-      shell.classList.remove('success-glow');
-      void shell.offsetWidth;
-      shell.classList.add('success-glow');
-      setTimeout(() => shell.classList.remove('success-glow'), 700);
-    }
-
-    function triggerFailGlow() {
-      const shell = document.querySelector('.app-shell');
-      shell.classList.remove('fail-glow');
-      void shell.offsetWidth;
-      shell.classList.add('fail-glow');
-      setTimeout(() => shell.classList.remove('fail-glow'), 700);
-    }
-
-    function updateSoundButton() {
-      soundToggleBtn.textContent = state.soundEnabled ? '🔊 Sound' : '🔇 Mute';
-    }
-
-    function addScoreToLeaderboard() {
-      const name = (state.playerName || 'Player 1').trim() || 'Player 1';
-      state.leaderboard.push({ name, score: state.score });
-      state.leaderboard.sort((a, b) => b.score - a.score);
-      state.leaderboard = state.leaderboard.slice(0, 8);
-      saveLeaderboard();
-      renderLeaderboard();
-    }
-
-    function makeReviewFeedback(question, submitted, expected) {
-      const q = question.toLowerCase();
-      const diff = Math.abs(submitted - expected);
-
-      if (q.includes('(') || q.includes(')')) {
-        return 'Do the bracketed part first before anything else.';
-      }
-      if (q.includes('×') && (q.includes('+') || q.includes('-'))) {
-        return 'Multiplication happens before addition or subtraction.';
-      }
-      if (q.includes('÷') && (q.includes('+') || q.includes('-'))) {
-        return 'Division should be solved before the final add/subtract step.';
-      }
-      if (diff > 2) {
-        return 'Try breaking the expression into smaller steps and check each one carefully.';
-      }
-      return 'Check the order of operations again and recalculate step by step.';
-    }
-
-    function showFinalSummary() {
-      const wrongEntries = state.wrongAttempts.length ? state.wrongAttempts : [{ question: 'No major mistakes this round!', answer: 'Nice work', feedback: 'Keep using the same order of operations strategy.' }];
-
-      finalSummary.textContent = state.finished
-        ? `${state.playerName} finished with ${state.score} points.`
-        : `${state.playerName} saved a strong score.`;
-
-      finalScore.textContent = `${state.score}`;
-      finalTitle.textContent = state.finished ? 'Adventure Complete!' : 'Round Summary';
-
-      reviewList.innerHTML = '';
-      wrongEntries.forEach((entry, index) => {
-        const li = document.createElement('li');
-        li.className = 'review-item';
-        li.innerHTML = `
-          <strong>${index + 1}. ${entry.question}</strong>
-          <small>Your answer: ${entry.answer} — ${entry.feedback}</small>
-        `;
-        reviewList.appendChild(li);
-      });
-
-      nextAfterFinishBtn.classList.toggle('hidden', state.currentLevel >= totalLevels - 1);
-      finalOverlay.classList.remove('hidden');
-    }
-
-    function endGame(message = 'The adventure has ended.') {
-      state.active = false;
-      state.finished = true;
-      clearInterval(state.timerId);
-      addScoreToLeaderboard();
-      showFinalSummary();
-
-      storyEl.textContent = message;
-      questionEl.textContent = 'GAME OVER';
-      answerInput.value = '';
-      answerInput.disabled = true;
-      submitBtn.disabled = true;
-      hintBtn.disabled = true;
-      nextBtn.classList.add('hidden');
-      updateStatus();
-    }
-
-    function handleNextLevel() {
-      if (state.finished) {
-        finalOverlay.classList.add('hidden');
-        resetGame();
+      if (!rows.length) {
+        els.leaderboardList.innerHTML = '<li><span>Play a round to set a score</span></li>';
         return;
       }
 
-      if (state.currentLevel >= totalLevels - 1) {
-        endGame('You completed every level!');
-        return;
-      }
-
-      buildLevel(state.currentLevel + 1);
-      state.active = true;
-      startTimer();
-    }
-
-    function submitAnswer() {
-      if (!state.active || state.finished) return;
-
-      const raw = answerInput.value.trim();
-      if (raw === '' || Number.isNaN(Number(raw))) {
-        setResult('Please enter a valid number before unlocking the obstacle.', 'bad');
-        triggerFailGlow();
-        playFailSound();
-        return;
-      }
-
-      const submitted = Number(raw);
-      const expected = Number(state.currentQuestion.answer);
-      const isCorrect = Math.abs(submitted - expected) < 1e-9;
-
-      if (isCorrect) {
-        const bonus = difficultyProfiles[state.difficulty].bonus;
-        const earned = 100 + bonus + Math.max(0, state.timer);
-        state.score += earned;
-        state.streak += 1;
-        state.bestStreak = Math.max(state.bestStreak, state.streak);
-
-        setResult(`Correct! +${earned} points. The path opens for you.`, 'good');
-        showChat('Well done! You solved it.', false);
-        triggerSuccessGlow();
-        playSuccessSound();
-
-        submitBtn.disabled = true;
-        answerInput.disabled = true;
-        nextBtn.classList.remove('hidden');
-        hintBtn.disabled = true;
-        state.active = false;
-        clearInterval(state.timerId);
-        updateStatus();
-      } else {
-        state.streak = 0;
-        const entry = {
-          question: state.currentQuestion.question,
-          answer: raw,
-          feedback: makeReviewFeedback(state.currentQuestion.question, submitted, expected)
-        };
-        state.wrongAttempts.push(entry);
-
-        setResult('Not quite. Re-check the BODMAS order and try again.', 'bad');
-        showChat('The puzzle is still active. Try again.', true);
-        triggerFailGlow();
-        playFailSound();
-        answerInput.value = '';
-        answerInput.focus();
-      }
+      els.leaderboardList.innerHTML = rows.map((entry, index) => `
+        <li>
+          <span class="name"><span class="rank">${index + 1}</span>${entry.name}</span>
+          <span class="score">${entry.score}</span>
+        </li>
+      `).join('');
     }
 
     function startTimer() {
-      clearInterval(state.timerId);
+      clearTimer();
       state.timerId = setInterval(() => {
         if (!state.active || state.finished) return;
 
-        state.timer = Math.max(0, state.timer - 1);
-        updateStatus();
+        state.timer -= 1;
 
-        if (state.timer === 0) {
-          clearInterval(state.timerId);
-          endGame('Time is up! The adventure ends here.');
+        if (state.timer <= 15) {
+          els.timerBadge.classList.add('low');
         }
+
+        if (state.timer <= 0) {
+          clearTimer();
+          state.active = false;
+          state.streak = 0;
+          setResult('bad', 'Time is up! Try the level again.');
+          els.submitBtn.disabled = true;
+          els.answerInput.value = '';
+          els.nextBtn.classList.add('hidden');
+          showChatBubble('The clock ran out! Try again!', true);
+          state.bestStreak = Math.max(state.bestStreak, state.streak);
+          updateHUD();
+          return;
+        }
+
+        els.timerBadge.textContent = `Time: ${state.timer}s`;
+        updateHUD();
       }, 1000);
     }
 
-    function startGame() {
-      const name = playerNameInput.value.trim();
-      const cleanName = name ? name.slice(0, 16) : 'Player 1';
-      state.playerName = cleanName;
-      state.difficulty = difficultySelect.value;
-      state.score = 0;
-      state.streak = 0;
-      state.bestStreak = 0;
-      state.finished = false;
-      state.active = true;
-      state.started = true;
-      state.currentLevel = Number(levelSelect.value || 0);
+    function prepareLevel(levelIndex, shouldResetTimer = true) {
+      state.currentLevel = clampLevel(levelIndex);
+      state.currentQuestion = buildQuestion(state.currentLevel);
       state.timer = difficultyProfiles[state.difficulty].time;
+      state.active = true;
+      state.finished = false;
       state.wrongAttempts = [];
-      finalOverlay.classList.add('hidden');
-      startOverlay.classList.add('hidden');
-      buildLevel(state.currentLevel);
-      startTimer();
-      updateStatus();
+      state.streak = 0;
+      if (shouldResetTimer) startTimer();
+      updateScene();
+      updateHUD();
+      renderQuestion();
     }
 
-    function resetGame() {
-      clearInterval(state.timerId);
+    function startGame() {
+      const playerName = els.playerNameInput.value.trim() || 'Player 1';
+      state.playerName = playerName;
+      state.difficulty = els.difficultySelect.value;
       state.score = 0;
-      state.streak = 0;
       state.bestStreak = 0;
+      state.currentLevel = 0;
+      state.started = true;
       state.finished = false;
+      state.active = true;
+      updateDifficultySettings();
+      clearTimer();
+      els.startOverlay.classList.add('hidden');
+      prepareLevel(0, true);
+      updateLeaderboard();
+    }
+
+    function finishGame() {
+      state.finished = true;
       state.active = false;
+      clearTimer();
+      els.finalTitle.textContent = state.currentLevel >= totalLevels - 1 ? 'Adventure Complete!' : 'Level Complete!';
+      els.finalSummary.textContent = `${state.playerName}, your final score is ready.`;
+      els.finalScore.textContent = String(state.score);
+      els.reviewList.innerHTML = [
+        `<li class="review-item"><strong>Difficulty</strong><small>${difficultyProfiles[state.difficulty].label}</small></li>`,
+        `<li class="review-item"><strong>Best Streak</strong><small>${state.bestStreak}</small></li>`,
+        `<li class="review-item"><strong>Levels Cleared</strong><small>${state.currentLevel + 1} / ${totalLevels}</small></li>`
+      ].join('');
+
+      const entry = { name: state.playerName, score: state.score };
+      state.leaderboard.push(entry);
+      state.leaderboard = state.leaderboard.sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0, 10);
+      saveLeaderboard();
+      updateLeaderboard();
+      els.finalOverlay.classList.remove('hidden');
+    }
+
+    function goToLobby() {
+      clearTimer();
       state.started = false;
-      state.currentLevel = Number(levelSelect.value || 0);
-      state.timer = difficultyProfiles[state.difficulty].time;
-      state.wrongAttempts = [];
-      answerInput.disabled = true;
-      submitBtn.disabled = true;
-      hintBtn.disabled = true;
-      nextBtn.classList.add('hidden');
-      startOverlay.classList.remove('hidden');
-      finalOverlay.classList.add('hidden');
-      setResult('Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.', 'info');
-      updateStatus();
-      showChat('Enter your name and choose a difficulty to begin.', true);
+      state.active = false;
+      state.finished = false;
+      state.currentLevel = 0;
+      els.finalOverlay.classList.add('hidden');
+      els.startOverlay.classList.remove('hidden');
+      els.answerInput.value = '';
+      els.result.textContent = 'Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.';
+      els.levelSelect.value = '0';
+      updateHUD();
+    }
+
+    function handleCorrectAnswer() {
+      clearTimer();
+      state.active = false;
+      state.streak += 1;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+      state.score += difficultyProfiles[state.difficulty].bonus + state.timer + (state.streak * 20);
+      setResult('good', `Correct! ${state.currentQuestion.answer} is the right answer.`);
+      showChatBubble('Great job! The gate unlocks.', true);
+      els.appShell = document.querySelector('.app-shell');
+      els.appShell.classList.remove('fail-glow');
+      els.appShell.classList.add('success-glow');
+      setTimeout(() => els.appShell.classList.remove('success-glow'), 700);
+      updateHUD();
+
+      if (state.currentLevel >= totalLevels - 1) {
+        els.nextBtn.classList.add('hidden');
+        setTimeout(() => finishGame(), 500);
+        return;
+      }
+
+      els.nextBtn.classList.remove('hidden');
+    }
+
+    function handleWrongAnswer() {
+      const value = Number(els.answerInput.value);
+      state.wrongAttempts.push(value);
+      state.streak = 0;
+      state.active = false;
+      setResult('bad', `Not quite. Try again — the answer needs careful BODMAS work.`);
+      showChatBubble('Wrong answer. Try again with the right order!', true);
+      els.appShell = document.querySelector('.app-shell');
+      els.appShell.classList.remove('success-glow');
+      els.appShell.classList.add('fail-glow');
+      setTimeout(() => els.appShell.classList.remove('fail-glow'), 700);
+      setTimeout(() => {
+        state.active = true;
+        startTimer();
+        setResult('info', state.currentQuestion.hint || 'Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.');
+      }, 700);
+      updateHUD();
+    }
+
+    function submitAnswer() {
+      if (!state.started || !state.active || !state.currentQuestion) return;
+      const rawValue = els.answerInput.value.trim();
+      if (!rawValue) {
+        setResult('info', 'Enter a value before unlocking the gate.');
+        return;
+      }
+
+      const guessed = Number(rawValue);
+      if (!Number.isFinite(guessed)) {
+        setResult('bad', 'Please type a valid number.');
+        return;
+      }
+
+      const correct = Number(state.currentQuestion.answer);
+      if (guessed === correct) {
+        handleCorrectAnswer();
+      } else {
+        handleWrongAnswer();
+      }
+    }
+
+    function jumpToLevel(levelIndex) {
+      const targetLevel = clampLevel(levelIndex);
+      state.currentLevel = targetLevel;
+      state.score = Math.max(0, state.score);
+      if (state.started) {
+        prepareLevel(targetLevel, true);
+      } else {
+        state.currentLevel = targetLevel;
+        updateScene();
+        updateHUD();
+      }
+    }
+
+    function restartCurrentRun() {
+      state.score = 0;
+      state.bestStreak = 0;
+      state.currentLevel = 0;
+      state.finished = false;
+      els.finalOverlay.classList.add('hidden');
+      state.started = true;
+      state.active = true;
+      prepareLevel(0, true);
+    }
+
+    function nextLevel() {
+      const nextLevelValue = state.currentLevel + 1;
+      if (nextLevelValue >= totalLevels) {
+        finishGame();
+        return;
+      }
+      state.currentLevel = nextLevelValue;
+      prepareLevel(nextLevelValue, true);
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      els.soundToggleBtn.textContent = state.soundEnabled ? '🔊 Sound' : '🔇 Sound';
     }
 
     function showHint() {
-      if (!state.active || state.finished) return;
-      const expression = state.currentQuestion.question;
-      let hint = 'Start with the operation that has highest priority in BODMAS.';
-      if (expression.includes('(')) hint = 'Solve the brackets first, then continue with the rest of the expression.';
-      else if (expression.includes('×') || expression.includes('÷')) hint = 'Check for multiplication or division before addition or subtraction.';
-      else if (expression.includes('+') || expression.includes('-')) hint = 'Once you handle the brackets and times/divide, finish with addition or subtraction.';
-      setResult('Hint: ' + hint, 'info');
-      showChat(hint, true);
+      if (!state.currentQuestion) return;
+      setResult('info', `Hint: ${state.currentQuestion.hint}`);
+      showChatBubble(`Hint: ${state.currentQuestion.hint}`);
     }
 
-    function setupEvents() {
-      startBtn.addEventListener('click', startGame);
-      restartBtn.addEventListener('click', () => {
-        finalOverlay.classList.add('hidden');
-        startGame();
-      });
-      backToLobbyBtn.addEventListener('click', () => {
-        finalOverlay.classList.add('hidden');
-        resetGame();
-      });
-      nextAfterFinishBtn.addEventListener('click', () => {
-        finalOverlay.classList.add('hidden');
-        handleNextLevel();
-      });
+    document.getElementById('startBtn').addEventListener('click', startGame);
+    els.submitBtn.addEventListener('click', submitAnswer);
+    els.answerInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        submitAnswer();
+      }
+    });
+    els.hintBtn = document.getElementById('hintBtn');
+    els.hintBtn.addEventListener('click', showHint);
+    els.nextBtn.addEventListener('click', nextLevel);
+    els.soundToggleBtn.addEventListener('click', toggleSound);
+    els.switchLevelBtn.addEventListener('click', () => jumpToLevel(els.levelSelect.value));
+    els.headerRestartBtn.addEventListener('click', restartCurrentRun);
+    els.finalRestartBtn.addEventListener('click', restartCurrentRun);
+    els.backToLobbyBtn.addEventListener('click', goToLobby);
+    els.levelSelect.addEventListener('change', () => jumpToLevel(els.levelSelect.value));
+    els.difficultySelect.addEventListener('change', () => {
+      state.difficulty = els.difficultySelect.value;
+      updateDifficultySettings();
+      if (state.started) {
+        prepareLevel(state.currentLevel, true);
+      }
+    });
 
-      playerNameInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') startGame();
-      });
+    els.nextAfterFinishBtn.addEventListener('click', () => {
+      if (state.currentLevel < totalLevels - 1) {
+        els.finalOverlay.classList.add('hidden');
+        nextLevel();
+      }
+    });
 
-      difficultySelect.addEventListener('change', () => {
-        state.difficulty = difficultySelect.value;
-        state.timer = difficultyProfiles[state.difficulty].time;
-        if (!state.active && !state.finished) {
-          buildLevel(state.currentLevel);
-        }
-        updateStatus();
-      });
+    document.addEventListener('pointermove', (event) => {
+      const x = (event.clientX / window.innerWidth) - 0.5;
+      const y = (event.clientY / window.innerHeight) - 0.5;
+      document.documentElement.style.setProperty('--mx', x.toFixed(2));
+      document.documentElement.style.setProperty('--my', y.toFixed(2));
+    });
 
-      levelSelect.addEventListener('change', () => {
-        const selected = Number(levelSelect.value || 0);
-        state.currentLevel = selected;
-        if (!state.active && !state.finished) {
-          buildLevel(selected);
-        }
-      });
-
-      submitBtn.addEventListener('click', submitAnswer);
-      nextBtn.addEventListener('click', handleNextLevel);
-      hintBtn.addEventListener('click', showHint);
-      soundToggleBtn.addEventListener('click', () => {
-        state.soundEnabled = !state.soundEnabled;
-        updateSoundButton();
-      });
-
-      answerInput.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') submitAnswer();
-      });
-
-      sceneEl.addEventListener('pointermove', (event) => {
-        const rect = sceneEl.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        sceneEl.style.setProperty('--mx', x.toFixed(3));
-        sceneEl.style.setProperty('--my', y.toFixed(3));
-      });
-
-      sceneEl.addEventListener('pointerleave', () => {
-        sceneEl.style.setProperty('--mx', '0');
-        sceneEl.style.setProperty('--my', '0');
-      });
-    }
-
-    function init() {
-      renderLeaderboard();
-      setupEvents();
-      difficultySelect.value = 'medium';
-      state.difficulty = 'medium';
-      state.timer = difficultyProfiles.medium.time;
-      updateSoundButton();
-      buildLevel(0);
-      state.active = false;
-      state.finished = false;
-      answerInput.disabled = true;
-      submitBtn.disabled = true;
-      hintBtn.disabled = true;
-      nextBtn.classList.add('hidden');
-      updateStatus();
-      showChat('Enter your name and choose a difficulty to begin.', true);
-    }
-
-    init();
+    updateLeaderboard();
+    updateDifficultySettings();
+    updateHUD();
+    updateScene();
+    prepareLevel(0, false);
+    els.startOverlay.classList.remove('hidden');
+    showChatBubble('Solve the puzzle to unlock the gate.', true);
   </script>
 </body>
 </html>
