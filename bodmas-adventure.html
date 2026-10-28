@@ -233,6 +233,7 @@
     }
 
     .chat-bubble {
+      position: relative;
       max-width: 260px;
       background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(236,244,255,0.92));
       color: #13263f;
@@ -332,7 +333,7 @@
       margin-bottom: 12px;
     }
 
-    input {
+    input, select {
       flex: 1;
       min-width: 170px;
       font-size: 1.08rem;
@@ -344,7 +345,7 @@
       outline: none;
     }
 
-    input:focus {
+    input:focus, select:focus {
       border-color: rgba(142, 240, 177, 0.85);
       box-shadow: 0 0 0 3px rgba(142, 240, 177, 0.15);
     }
@@ -558,9 +559,10 @@
       margin-top: 12px;
     }
 
-    .start-controls input {
+    .start-controls input,
+    .start-controls select {
       flex: 1;
-      min-width: 170px;
+      min-width: 120px;
     }
 
     .starter-btn {
@@ -589,8 +591,8 @@
       body { padding: 10px; }
       .topbar { padding: 14px 16px; }
       .badge { min-width: 100px; }
-      .answer-row { flex-direction: column; }
-      input, button { width: 100%; }
+      .answer-row, .start-controls { flex-direction: column; }
+      input, button, select { width: 100%; }
     }
   </style>
 </head>
@@ -601,6 +603,11 @@
       <p>Unlock each level by solving BODMAS challenges. Beat the clock, fight the monsters, and climb the classroom leaderboard.</p>
       <div class="start-controls">
         <input id="playerNameInput" type="text" maxlength="16" placeholder="Enter your name" value="Player 1" />
+        <select id="difficultySelect" aria-label="Select difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
         <button id="startBtn" class="starter-btn">Start Game</button>
       </div>
     </div>
@@ -689,7 +696,11 @@
 
   <script>
     const totalLevels = 8;
-    const defaultTime = 180;
+    const difficultyProfiles = {
+      easy: { label: "Easy", time: 220, bonus: 120, randomRange: [2, 6], brackets: false },
+      medium: { label: "Medium", time: 180, bonus: 100, randomRange: [2, 7], brackets: true },
+      hard: { label: "Hard", time: 140, bonus: 140, randomRange: [2, 9], brackets: true }
+    };
 
     const obstacleData = [
       { name: "Troll", icon: "🪓", story: "A grumpy troll guards the forest bridge. Solve the puzzle to open the gate.", chat: "The bridge is mine! Solve it if you want to pass!" },
@@ -716,7 +727,7 @@
     const state = {
       currentLevel: 0,
       score: 0,
-      timer: defaultTime,
+      timer: difficultyProfiles.medium.time,
       currentQuestion: null,
       intervalId: null,
       playerName: "Player 1",
@@ -724,6 +735,7 @@
       bestStreak: 0,
       active: false,
       finished: false,
+      difficulty: "medium",
       leaderboard: loadLeaderboard()
     };
 
@@ -747,6 +759,7 @@
     const startOverlay = document.getElementById("startOverlay");
     const startBtn = document.getElementById("startBtn");
     const playerNameInput = document.getElementById("playerNameInput");
+    const difficultySelect = document.getElementById("difficultySelect");
 
     function loadLeaderboard() {
       try {
@@ -795,58 +808,61 @@
     }
 
     function createQuestion(levelIndex) {
-      switch (levelIndex) {
+      const profile = difficultyProfiles[state.difficulty];
+      const min = profile.randomRange[0];
+      const max = profile.randomRange[1];
+
+      if (state.difficulty === "easy") {
+        const a = randomInt(min, max);
+        const b = randomInt(2, 5);
+        const c = randomInt(2, 6);
+        const questionType = levelIndex % 3;
+
+        if (questionType === 0) return { question: `${a} + ${b} × ${c}`, answer: a + b * c };
+        if (questionType === 1) return { question: `${a * b} ÷ ${a} + ${c}`, answer: (a * b) / a + c };
+        return { question: `${a} - ${b} × ${c}`, answer: a - b * c };
+      }
+
+      if (state.difficulty === "hard") {
+        const a = randomInt(3, max);
+        const b = randomInt(2, max - 1);
+        const c = randomInt(2, max);
+        const d = randomInt(2, max);
+        const qTypes = [
+          { question: `(${a} + ${b}) × ${c} - ${d}`, answer: (a + b) * c - d },
+          { question: `${a * c} ÷ ${a} + ${b} × (${d} + ${c})`, answer: (a * c) / a + b * (d + c) },
+          { question: `${(a + b) * (c + 2)} ÷ (${a} + ${b}) + ${d}`, answer: ((a + b) * (c + 2)) / (a + b) + d },
+          { question: `(${a} + ${b}) × (${c} - ${d})`, answer: (a + b) * (c - d) }
+        ];
+        return qTypes[levelIndex % qTypes.length];
+      }
+
+      // medium
+      switch (levelIndex % 4) {
         case 0: {
-          const a = randomInt(3, 9);
-          const b = randomInt(2, 6);
-          const c = randomInt(2, 6);
+          const a = randomInt(3, max);
+          const b = randomInt(2, max);
+          const c = randomInt(2, max);
           return { question: `${a} + ${b} × ${c}`, answer: a + b * c };
         }
         case 1: {
           const x = randomInt(8, 15);
-          const y = randomInt(2, 6);
-          const z = randomInt(2, 5);
+          const y = randomInt(2, max);
+          const z = randomInt(2, max);
           return { question: `${x} - ${y} × ${z}`, answer: x - y * z };
         }
         case 2: {
-          const p = randomInt(3, 8);
-          const q = randomInt(2, 6);
-          const r = randomInt(2, 6);
+          const p = randomInt(3, max);
+          const q = randomInt(2, max);
+          const r = randomInt(2, max);
           return { question: `(${p} + ${q}) × ${r}`, answer: (p + q) * r };
         }
-        case 3: {
-          const d = randomInt(3, 8);
-          const e = randomInt(2, 7);
-          const f = randomInt(2, 6);
+        default: {
+          const d = randomInt(3, max);
+          const e = randomInt(2, max);
+          const f = randomInt(2, max);
           return { question: `${d * e} ÷ ${d} + ${f}`, answer: (d * e) / d + f };
         }
-        case 4: {
-          const m = randomInt(3, 8);
-          const n = randomInt(2, 5);
-          const t = randomInt(4, 9);
-          const diff = randomInt(2, 4);
-          return { question: `${m} + ${n} × (${t} - ${t - diff})`, answer: m + n * (t - (t - diff)) };
-        }
-        case 5: {
-          const g = randomInt(2, 5);
-          const h = randomInt(2, 5);
-          const i = randomInt(2, 5);
-          return { question: `${(g + h) * (i + 2)} ÷ (${g} + ${h}) + ${i}`, answer: ((g + h) * (i + 2)) / (g + h) + i };
-        }
-        case 6: {
-          const j = randomInt(2, 5);
-          const k = randomInt(2, 5);
-          const l = randomInt(2, 5);
-          return { question: `(${j} + ${k}) × ${l} - ${k + 1}`, answer: (j + k) * l - (k + 1) };
-        }
-        case 7: {
-          const u = randomInt(2, 6);
-          const v = randomInt(2, 7);
-          const w = randomInt(3, 7);
-          return { question: `${u * v} ÷ ${u} + ${w} × (${v + 2} - ${v})`, answer: (u * v) / u + w * ((v + 2) - v) };
-        }
-        default:
-          return { question: "8 + 2 × 3", answer: 14 };
       }
     }
 
@@ -876,6 +892,7 @@
       const obstacle = obstacleData[levelIndex];
       state.currentQuestion = createQuestion(levelIndex);
       state.currentLevel = levelIndex;
+      state.timer = difficultyProfiles[state.difficulty].time;
 
       setScene(levelIndex);
       obstacleIconEl.textContent = obstacle.icon;
@@ -917,25 +934,19 @@
     }
 
     function soundCorrect() {
-      const init = () => {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "triangle";
-        o.frequency.value = 660;
-        g.gain.value = 0.05;
-        o.connect(g); g.connect(ctx.destination);
-        o.start(); o.stop(ctx.currentTime + 0.12);
-        setTimeout(() => {
-          const o2 = ctx.createOscillator();
-          const g2 = ctx.createGain();
-          o2.type = "triangle"; o2.frequency.value = 880; g2.gain.value = 0.05;
-          o2.connect(g2); g2.connect(ctx.destination); o2.start(); o2.stop(ctx.currentTime + 0.14);
-        }, 120);
-      };
-      init();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "triangle"; o.frequency.value = 660; g.gain.value = 0.05;
+      o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.12);
+      setTimeout(() => {
+        const o2 = ctx.createOscillator();
+        const g2 = ctx.createGain();
+        o2.type = "triangle"; o2.frequency.value = 880; g2.gain.value = 0.05;
+        o2.connect(g2); g2.connect(ctx.destination); o2.start(); o2.stop(ctx.currentTime + 0.14);
+      }, 120);
     }
 
     function soundWrong() {
@@ -945,8 +956,7 @@
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.type = "sawtooth"; o.frequency.value = 180; g.gain.value = 0.06;
-      o.connect(g); g.connect(ctx.destination);
-      o.start(); o.stop(ctx.currentTime + 0.15);
+      o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.15);
     }
 
     function submitAnswer() {
@@ -962,7 +972,8 @@
       }
 
       if (value === state.currentQuestion.answer) {
-        state.score += 100 + Math.max(0, state.timer);
+        const bonus = difficultyProfiles[state.difficulty].bonus;
+        state.score += 100 + bonus + Math.max(0, state.timer);
         state.streak += 1;
         state.bestStreak = Math.max(state.bestStreak, state.streak);
         scoreBadge.textContent = `Score: ${state.score}`;
@@ -1042,8 +1053,9 @@
     function startGame() {
       const rawName = playerNameInput.value.trim();
       state.playerName = rawName || "Player 1";
+      state.difficulty = difficultySelect.value;
       state.score = 0;
-      state.timer = defaultTime;
+      state.timer = difficultyProfiles[state.difficulty].time;
       state.currentLevel = 0;
       state.streak = 0;
       state.bestStreak = 0;
@@ -1058,7 +1070,7 @@
 
     function resetGame() {
       state.score = 0;
-      state.timer = defaultTime;
+      state.timer = difficultyProfiles[state.difficulty].time;
       state.currentLevel = 0;
       state.streak = 0;
       state.bestStreak = 0;
@@ -1074,6 +1086,11 @@
     playerNameInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") startGame();
     });
+    difficultySelect.addEventListener("change", () => {
+      state.difficulty = difficultySelect.value;
+      state.timer = difficultyProfiles[state.difficulty].time;
+      updateStatus();
+    });
     submitBtn.addEventListener("click", submitAnswer);
     nextBtn.addEventListener("click", handleNextLevel);
     answerInput.addEventListener("keydown", (event) => {
@@ -1082,11 +1099,10 @@
 
     renderLeaderboard();
     updateStatus();
-    buildLevel(0);
     state.active = false;
     state.finished = false;
     startOverlay.classList.remove("hidden");
-    showChat("Enter your name to start the classroom challenge!");
+    showChat("Enter your name and choose a difficulty!");
   </script>
 </body>
 </html>
