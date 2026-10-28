@@ -3,17 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BODMAS Adventure</title>
+  <title>BODMAS Adventure Classroom</title>
   <style>
     :root {
-      --bg1: #0a1220;
-      --bg2: #1d2b45;
-      --panel: rgba(10, 18, 30, 0.8);
-      --gold: #ffd166;
+      --bg1: #091a2d;
+      --bg2: #123a5b;
+      --panel: rgba(10, 20, 35, 0.82);
+      --panel-soft: rgba(18, 34, 54, 0.72);
+      --glass: rgba(255,255,255,0.08);
+      --gold: #ffd76a;
+      --gold-deep: #f3b11a;
       --green: #8ef0b1;
       --red: #ff8d8d;
-      --info: #e9f3ff;
-      --shadow: rgba(0,0,0,0.38);
+      --blue: #8ecbff;
+      --sky: #dff4ff;
+      --shadow: rgba(0, 0, 0, 0.35);
       --outline: rgba(255,255,255,0.12);
     }
 
@@ -21,88 +25,104 @@
 
     html, body {
       margin: 0;
-      height: 100%;
+      min-height: 100%;
       font-family: Arial, Helvetica, sans-serif;
-      background: radial-gradient(circle at top, #203150 0%, var(--bg1) 32%, var(--bg2) 100%);
-      color: white;
-      overflow: hidden;
+      background: linear-gradient(160deg, #0a1a2b 0%, #123a5b 100%);
+      color: #f3f7ff;
     }
 
     body {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 18px;
     }
 
-    .game {
-      width: min(980px, 100%);
-      background: var(--panel);
-      border: 1px solid var(--outline);
-      border-radius: 20px;
+    .app-shell {
+      width: min(1200px, 100%);
+      background: rgba(11, 21, 31, 0.8);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 70px rgba(0,0,0,0.4);
       overflow: hidden;
-      box-shadow: 0 30px 70px var(--shadow);
-      position: relative;
-    }
-
-    .game.shake {
-      animation: shake 0.45s ease-in-out;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20% { transform: translateX(-10px); }
-      40% { transform: translateX(10px); }
-      60% { transform: translateX(-8px); }
-      80% { transform: translateX(8px); }
     }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 18px;
       padding: 18px 22px;
       background: rgba(255,255,255,0.04);
-      border-bottom: 1px solid var(--outline);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
 
-    h1 {
+    .brand h1 {
       margin: 0;
       font-size: clamp(1.5rem, 2vw, 2.4rem);
-      letter-spacing: 1px;
+      letter-spacing: 0.04em;
     }
 
-    .hud {
+    .brand small {
+      opacity: 0.8;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-row {
       display: flex;
-      gap: 12px;
+      align-items: center;
       flex-wrap: wrap;
+      gap: 10px;
     }
 
-    .hud span {
+    .badge {
+      display: inline-block;
+      min-width: 115px;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.12);
       border-radius: 999px;
-      padding: 8px 12px;
-      font-weight: bold;
-      font-size: 0.95rem;
+      padding: 10px 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .badge.timer.low {
+      background: rgba(255, 107, 107, 0.12);
+      border-color: rgba(255, 107, 107, 0.5);
+      color: #ffd4d4;
+    }
+
+    .game-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.1fr) minmax(260px, 0.9fr);
+      min-height: 760px;
+    }
+
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
 
     .scene {
       position: relative;
       height: 300px;
       overflow: hidden;
-      border-bottom: 1px solid var(--outline);
-      background: linear-gradient(180deg, #7ec9ff 0%, #d9efff 30%, #9ee0a0 30%, #3a7f49 100%);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, #7ec9ff 0%, #dff5ff 28%, #9fe2b3 28%, #326a46 100%);
     }
 
-    .scene-0 { background: linear-gradient(180deg, #7ec9ff 0%, #d9efff 30%, #9ee0a0 30%, #3a7f49 100%); }
-    .scene-1 { background: linear-gradient(180deg, #1a2f49 0%, #48627b 30%, #c8d5de 30%, #5e6c63 100%); }
-    .scene-2 { background: linear-gradient(180deg, #d3f4ff 0%, #96d8ff 32%, #64c5c4 32%, #185c65 100%); }
-    .scene-3 { background: linear-gradient(180deg, #ffe39a 0%, #f7bb69 30%, #a9d96d 30%, #4b7e4f 100%); }
-    .scene-4 { background: linear-gradient(180deg, #b7e5ff 0%, #78baf5 30%, #7a8fb7 30%, #3e4d63 100%); }
-    .scene-5 { background: linear-gradient(180deg, #d8fbff 0%, #aad6ff 30%, #5ac1d2 30%, #214d5f 100%); }
-    .scene-6 { background: linear-gradient(180deg, #f0f0d2 0%, #d3ebff 30%, #8ac6db 30%, #3d4f62 100%); }
-    .scene-7 { background: linear-gradient(180deg, #fff1b5 0%, #f7c75c 30%, #d36a24 30%, #5a352f 100%); }
+    .scene-0 { background: linear-gradient(180deg, #7ec9ff 0%, #dff5ff 30%, #9fe2b3 30%, #2e6c42 100%); }
+    .scene-1 { background: linear-gradient(180deg, #1b2f4a 0%, #4a667f 30%, #dbe4ee 30%, #5e6c63 100%); }
+    .scene-2 { background: linear-gradient(180deg, #d5f4ff 0%, #9bdbff 30%, #68c7c8 30%, #1d6770 100%); }
+    .scene-3 { background: linear-gradient(180deg, #ffe8a5 0%, #f7c165 30%, #b0d974 30%, #457a4a 100%); }
+    .scene-4 { background: linear-gradient(180deg, #c2eaff 0%, #82caff 30%, #8d9ec8 30%, #46546d 100%); }
+    .scene-5 { background: linear-gradient(180deg, #d9fbff 0%, #b2dcff 30%, #5bc0cf 30%, #234d64 100%); }
+    .scene-6 { background: linear-gradient(180deg, #f1f4d2 0%, #d8ebff 30%, #8ac7dc 30%, #465f6d 100%); }
+    .scene-7 { background: linear-gradient(180deg, #fff0b2 0%, #f8d062 30%, #d5722e 30%, #5e392d 100%); }
 
     .sky-objects {
       position: absolute;
@@ -110,55 +130,55 @@
       pointer-events: none;
     }
 
-    .moon, .sun, .star {
+    .moon, .sun, .star, .sparkle {
       position: absolute;
-      font-size: 52px;
-      filter: drop-shadow(0 0 16px rgba(255,255,255,0.4));
-      animation: float 6s ease-in-out infinite;
+      animation: floaty 6s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.5));
     }
 
-    .moon { right: 85px; top: 24px; }
-    .sun { right: 80px; top: 28px; }
+    .moon { right: 80px; top: 18px; font-size: 58px; }
+    .sun { right: 80px; top: 30px; font-size: 54px; }
     .star { font-size: 28px; opacity: 0.9; animation: twinkle 2s ease-in-out infinite; }
+    .sparkle { font-size: 22px; opacity: 0.6; }
 
-    @keyframes float {
+    @keyframes floaty {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
     @keyframes twinkle {
-      0%, 100% { opacity: 0.4; transform: scale(0.9); }
-      50% { opacity: 1; transform: scale(1.1); }
+      0%, 100% { opacity: 0.35; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.12); }
     }
 
     .cloud {
       position: absolute;
-      background: rgba(255,255,255,0.65);
+      background: rgba(255,255,255,0.68);
       border-radius: 999px;
       opacity: 0.7;
-      animation: cloudFloat 16s linear infinite;
+      animation: drift 18s linear infinite;
     }
 
     .cloud::before, .cloud::after {
       content: "";
       position: absolute;
-      background: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.75);
       border-radius: 50%;
     }
 
     .cloud::before {
-      width: 30px; height: 30px;
-      left: 16px; top: -14px;
+      width: 28px; height: 28px;
+      left: 14px; top: -12px;
     }
 
     .cloud::after {
-      width: 38px; height: 38px;
-      right: 18px; top: -18px;
+      width: 34px; height: 34px;
+      right: 16px; top: -16px;
     }
 
-    @keyframes cloudFloat {
+    @keyframes drift {
       0% { transform: translateX(-80px); }
-      100% { transform: translateX(900px); }
+      100% { transform: translateX(920px); }
     }
 
     .hill {
@@ -166,46 +186,87 @@
       left: 0;
       right: 0;
       bottom: 0;
-      height: 36%;
-      background: rgba(17, 72, 39, 0.65);
+      height: 38%;
+      background: rgba(15, 65, 34, 0.65);
       border-radius: 50% 50% 0 0 / 100% 100% 0 0;
       z-index: 1;
+    }
+
+    .tree {
+      position: absolute;
+      left: 35px;
+      bottom: 35px;
+      font-size: 78px;
+      z-index: 2;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,0.18));
     }
 
     .bridge {
       position: absolute;
       left: 50%;
-      bottom: 28px;
+      bottom: 22px;
       transform: translateX(-50%);
-      font-size: 58px;
+      font-size: 62px;
       z-index: 2;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    .tree {
-      position: absolute;
-      left: 38px;
-      bottom: 32px;
-      font-size: 74px;
-      z-index: 2;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+      animation: floaty 4s ease-in-out infinite;
     }
 
     .castle {
       position: absolute;
       right: 52px;
-      bottom: 34px;
-      font-size: 78px;
+      bottom: 28px;
+      font-size: 82px;
       z-index: 2;
-      animation: float 5s ease-in-out infinite;
+      animation: floaty 5.5s ease-in-out infinite;
+    }
+
+    .obstacle-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-bubble {
+      max-width: 260px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(236,244,255,0.92));
+      color: #13263f;
+      border-radius: 16px;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+      line-height: 1.35;
+      font-weight: 700;
+      box-shadow: 0 20px 28px rgba(0,0,0,0.15);
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+      transition: 0.24s ease;
+      border: 1px solid rgba(18,42,69,0.08);
+    }
+
+    .chat-bubble.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .chat-bubble::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      transform: translateX(-50%) rotate(45deg);
+      width: 14px;
+      height: 14px;
+      background: rgba(236,244,255,0.92);
+      border-right: 1px solid rgba(18,42,69,0.08);
+      border-bottom: 1px solid rgba(18,42,69,0.08);
     }
 
     .obstacle-box {
-      position: absolute;
-      left: 50%;
-      bottom: 30px;
-      transform: translateX(-50%);
-      z-index: 4;
       width: 220px;
       text-align: center;
       background: rgba(0,0,0,0.18);
@@ -215,55 +276,50 @@
       backdrop-filter: blur(4px);
       box-shadow: 0 12px 22px rgba(0,0,0,0.18);
       animation: bob 2.4s ease-in-out infinite;
+      position: relative;
     }
 
     @keyframes bob {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-8px); }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
-    .obstacle-icon {
-      font-size: 48px;
-      margin-bottom: 4px;
-    }
-
-    .obstacle-name {
-      font-weight: 700;
-      letter-spacing: 1px;
-      font-size: 1.15rem;
-    }
+    .obstacle-icon { font-size: 48px; margin-bottom: 4px; }
+    .obstacle-name { font-weight: 800; letter-spacing: 1px; font-size: 1.15rem; }
 
     .panel {
       padding: 22px;
+      background: rgba(13, 25, 38, 0.52);
     }
 
     .story {
       margin: 0 0 18px;
-      min-height: 60px;
+      min-height: 58px;
       font-size: 1.04rem;
-      color: var(--info);
       line-height: 1.6;
+      color: var(--sky);
     }
 
     .question-box {
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.055);
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 16px 18px;
-      margin-bottom: 16px;
+      border-radius: 16px;
+      padding: 18px 18px;
+      margin-bottom: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .question-label {
       display: block;
       font-size: 0.72rem;
-      letter-spacing: 1.4px;
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       opacity: 0.8;
       margin-bottom: 8px;
     }
 
     .question {
-      font-size: clamp(1.4rem, 2.8vw, 2.3rem);
+      font-size: clamp(1.5rem, 2.9vw, 2.3rem);
       font-weight: 800;
       color: var(--gold);
       letter-spacing: 1px;
@@ -278,7 +334,7 @@
 
     input {
       flex: 1;
-      min-width: 180px;
+      min-width: 170px;
       font-size: 1.08rem;
       padding: 15px 16px;
       border-radius: 12px;
@@ -289,23 +345,21 @@
     }
 
     input:focus {
-      border-color: rgba(127, 231, 154, 0.8);
-      box-shadow: 0 0 0 3px rgba(127,231,154,0.15);
+      border-color: rgba(142, 240, 177, 0.85);
+      box-shadow: 0 0 0 3px rgba(142, 240, 177, 0.15);
     }
 
     button {
-      border: 0;
+      border: none;
       border-radius: 12px;
-      padding: 15px 20px;
-      font-size: 1rem;
+      padding: 15px 18px;
       cursor: pointer;
-      font-weight: 700;
+      font-size: 1rem;
+      font-weight: 800;
       transition: transform 0.14s ease;
     }
 
-    button:hover {
-      transform: translateY(-1px);
-    }
+    button:hover { transform: translateY(-1px); }
 
     .primary {
       background: linear-gradient(135deg, #7af2d3, #63c8c7);
@@ -314,124 +368,338 @@
 
     .secondary {
       background: linear-gradient(135deg, #ffd166, #ffb703);
-      color: #1f1f22;
+      color: #212121;
     }
 
     .result {
       min-height: 54px;
       margin: 0;
       padding-top: 8px;
-      font-weight: 600;
+      font-weight: 700;
       line-height: 1.5;
     }
 
     .good { color: var(--green); }
-    .bad { color: #ffc4c4; }
-    .info { color: var(--info); }
+    .bad { color: #ffc7c7; }
+    .info { color: var(--sky); }
 
     .hidden { display: none; }
 
     .success-glow {
       box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.8);
-      animation: pulseGreen 0.8s ease-out;
+      animation: pulseGreen 0.7s ease-out;
     }
 
     .fail-glow {
-      box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.75);
+      box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.7);
       animation: pulseRed 0.7s ease-out;
+    }
+
+    .shake {
+      animation: shake 0.42s ease-in-out;
     }
 
     @keyframes pulseGreen {
       0% { box-shadow: 0 0 0 0 rgba(142, 240, 177, 0.8); }
-      100% { box-shadow: 0 0 18px 14px rgba(142, 240, 177, 0); }
+      100% { box-shadow: 0 0 20px 18px rgba(142, 240, 177, 0); }
     }
 
     @keyframes pulseRed {
       0% { box-shadow: 0 0 0 0 rgba(255, 141, 141, 0.8); }
-      100% { box-shadow: 0 0 18px 14px rgba(255, 141, 141, 0); }
+      100% { box-shadow: 0 0 20px 18px rgba(255, 141, 141, 0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+
+    .leaderboard-panel {
+      background: rgba(16, 28, 40, 0.85);
+      border-left: 1px solid rgba(255,255,255,0.08);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .leaderboard-box {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 14px 12px;
+    }
+
+    .leaderboard-box h3 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.9;
+    }
+
+    .leaderboard-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .leaderboard-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-weight: 700;
+      color: #edf6ff;
+    }
+
+    .leaderboard-list li .name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .leaderboard-list li .rank {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--gold);
+    }
+
+    .leaderboard-list li .score {
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .mini-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mini-card h4 {
+      margin: 0;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    .mini-card strong {
+      display: block;
+      font-size: 1.5rem;
+      color: var(--gold);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 12, 20, 0.72);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      transition: 0.25s ease;
+    }
+
+    .overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .start-card {
+      width: min(500px, 90vw);
+      background: linear-gradient(180deg, rgba(17,31,47,0.96), rgba(12,22,34,0.96));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 22px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+      padding: 24px 22px;
+    }
+
+    .start-card h2 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      text-align: center;
+    }
+
+    .start-card p {
+      margin: 0 0 16px;
+      text-align: center;
+      color: #d8ebff;
+      line-height: 1.6;
+    }
+
+    .start-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .start-controls input {
+      flex: 1;
+      min-width: 170px;
+    }
+
+    .starter-btn {
+      background: linear-gradient(135deg, #8ef0b1, #7ad2ff);
+      color: #0d1d2c;
+      font-size: 1.02rem;
+      padding: 15px 18px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    @media (max-width: 920px) {
+      .game-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .leaderboard-panel {
+        border-left: none;
+        border-top: 1px solid rgba(255,255,255,0.08);
+      }
     }
 
     @media (max-width: 560px) {
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-
-      .answer-row {
-        flex-direction: column;
-      }
-
-      input, button {
-        width: 100%;
-      }
+      body { padding: 10px; }
+      .topbar { padding: 14px 16px; }
+      .badge { min-width: 100px; }
+      .answer-row { flex-direction: column; }
+      input, button { width: 100%; }
     }
   </style>
 </head>
 <body>
-  <div class="game" id="game">
+  <div id="startOverlay" class="overlay">
+    <div class="start-card">
+      <h2>🏆 BODMAS Adventure</h2>
+      <p>Unlock each level by solving BODMAS challenges. Beat the clock, fight the monsters, and climb the classroom leaderboard.</p>
+      <div class="start-controls">
+        <input id="playerNameInput" type="text" maxlength="16" placeholder="Enter your name" value="Player 1" />
+        <button id="startBtn" class="starter-btn">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell">
     <div class="topbar">
-      <h1>BODMAS Adventure</h1>
-      <div class="hud">
-        <span id="levelBadge">Level 1 / 8</span>
-        <span id="scoreBadge">Score: 0</span>
+      <div class="brand">
+        <small>Classroom Challenge</small>
+        <h1>BODMAS Adventure</h1>
+      </div>
+
+      <div class="status-row">
+        <span id="levelBadge" class="badge">Level 1 / 8</span>
+        <span id="timerBadge" class="badge">Time: 180s</span>
+        <span id="scoreBadge" class="badge">Score: 0</span>
       </div>
     </div>
 
-    <div id="scene" class="scene scene-0">
-      <div class="sky-objects">
-        <div class="moon">🌙</div>
-        <div class="star" style="top: 40px; left: 80px;">✦</div>
-        <div class="star" style="top: 90px; left: 180px;">✦</div>
-        <div class="star" style="top: 48px; left: 340px;">✦</div>
-        <div class="star" style="top: 90px; left: 520px;">✦</div>
-        <div class="cloud" style="width: 120px; height: 32px; left: 30px; top: 58px;"></div>
-        <div class="cloud" style="width: 150px; height: 35px; left: 220px; top: 100px; animation-delay: 4s;"></div>
-        <div class="cloud" style="width: 100px; height: 28px; left: 520px; top: 70px; animation-delay: 8s;"></div>
+    <div class="game-layout">
+      <div class="left-panel">
+        <div id="scene" class="scene scene-0">
+          <div class="sky-objects">
+            <div class="moon">🌙</div>
+            <div class="star" style="top: 35px; left: 80px;">✦</div>
+            <div class="star" style="top: 80px; left: 180px;">✦</div>
+            <div class="star" style="top: 45px; left: 340px;">✦</div>
+            <div class="star" style="top: 100px; left: 520px;">✦</div>
+            <div class="sparkle" style="top: 130px; left: 240px;">✨</div>
+            <div class="cloud" style="width: 120px; height: 30px; left: 24px; top: 50px;"></div>
+            <div class="cloud" style="width: 150px; height: 34px; left: 210px; top: 86px; animation-delay: 3s;"></div>
+            <div class="cloud" style="width: 112px; height: 28px; left: 500px; top: 65px; animation-delay: 6s;"></div>
+          </div>
+
+          <div class="tree">🌲</div>
+          <div class="bridge">🌉</div>
+          <div class="castle">🏰</div>
+          <div class="hill"></div>
+
+          <div class="obstacle-wrap">
+            <div id="chatBubble" class="chat-bubble">Solve the puzzle to unlock the gate.</div>
+            <div class="obstacle-box">
+              <div id="obstacleIcon" class="obstacle-icon">🧙</div>
+              <div id="obstacleName" class="obstacle-name">Wizard</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <p id="story" class="story">A wizard blocks the path. Solve the BODMAS challenge to unlock the gate.</p>
+
+          <div class="question-box">
+            <span class="question-label">BODMAS challenge</span>
+            <div id="question" class="question">6 + 3 × 4</div>
+          </div>
+
+          <div class="answer-row">
+            <input id="answerInput" type="number" placeholder="Enter your answer" />
+            <button id="submitBtn" class="primary">Unlock</button>
+          </div>
+
+          <button id="nextBtn" class="secondary hidden">Next Level</button>
+
+          <p id="result" class="result info">Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.</p>
+        </div>
       </div>
 
-      <div class="tree">🌲</div>
-      <div class="bridge">🌉</div>
-      <div class="castle">🏰</div>
-      <div class="hill"></div>
+      <aside class="leaderboard-panel">
+        <div class="leaderboard-box">
+          <h3>Leaderboard</h3>
+          <ol id="leaderboardList" class="leaderboard-list"></ol>
+        </div>
 
-      <div class="obstacle-box">
-        <div id="obstacleIcon" class="obstacle-icon">🧙</div>
-        <div id="obstacleName" class="obstacle-name">Wizard</div>
-      </div>
-    </div>
+        <div class="mini-card">
+          <h4>Round</h4>
+          <strong id="roundValue">1 / 8</strong>
+        </div>
 
-    <div class="panel">
-      <p id="story" class="story">A wizard blocks the gate. Solve the BODMAS challenge to unlock the path.</p>
-
-      <div class="question-box">
-        <span class="question-label">BODMAS challenge</span>
-        <div id="question" class="question">6 + 3 × 4</div>
-      </div>
-
-      <div class="answer-row">
-        <input id="answerInput" type="number" placeholder="Enter your answer" />
-        <button id="submitBtn" class="primary">Unlock</button>
-      </div>
-
-      <button id="nextBtn" class="secondary hidden">Next Level</button>
-
-      <p id="result" class="result info">Remember: Brackets, Orders, Division, Multiplication, Addition, Subtraction.</p>
+        <div class="mini-card">
+          <h4>Best Streak</h4>
+          <strong id="streakValue">0</strong>
+        </div>
+      </aside>
     </div>
   </div>
 
   <script>
     const totalLevels = 8;
+    const defaultTime = 180;
 
     const obstacleData = [
-      { name: "Troll", icon: "🪓", story: "A grumpy troll guards the forest bridge. Solve the puzzle to open the gate." },
-      { name: "Wizard", icon: "🧙", story: "A moonlit wizard blocks the path. Crack the spell with BODMAS." },
-      { name: "Unicorn", icon: "🦄", story: "A magical unicorn guards the crystal lake. Answer correctly to receive the key." },
-      { name: "Dragon", icon: "🐉", story: "A dragon watches over the canyon. Only a brave thinker can pass." },
-      { name: "Goblin", icon: "👺", story: "A sneaky goblin demands a math challenge before unlocking the bridge." },
-      { name: "Sorcerer", icon: "🧝", story: "The elder sorcerer controls the ice gate. Solve it to continue." },
-      { name: "Forest Guardian", icon: "🌿", story: "The forest guardian stands in the ruins. Finish the challenge to win the path." },
-      { name: "Math King", icon: "👑", story: "You have reached the final boss of the Number Kingdom. Defeat the king!" }
+      { name: "Troll", icon: "🪓", story: "A grumpy troll guards the forest bridge. Solve the puzzle to open the gate.", chat: "The bridge is mine! Solve it if you want to pass!" },
+      { name: "Wizard", icon: "🧙", story: "A moonlit wizard blocks the path. Crack the spell with BODMAS.", chat: "A spell is needed... and math is the key!" },
+      { name: "Unicorn", icon: "🦄", story: "A magical unicorn guards the crystal lake. Answer correctly to receive the key.", chat: "The crystal only opens to a careful mind." },
+      { name: "Dragon", icon: "🐉", story: "A dragon watches over the canyon. Only a brave thinker can pass.", chat: "Roar! Solve my question before I breathe fire!" },
+      { name: "Goblin", icon: "👺", story: "A sneaky goblin demands a challenge before unlocking the bridge.", chat: "If you can count correctly, the bridge is yours." },
+      { name: "Sorcerer", icon: "🧝", story: "The elder sorcerer controls the ice gate. Solve it to continue.", chat: "This ice gate obeys the order of operations." },
+      { name: "Forest Guardian", icon: "🌿", story: "The forest guardian stands in the ruins. Finish the challenge to win the path.", chat: "Nature respects logic, and so do I." },
+      { name: "Math King", icon: "👑", story: "You have reached the final boss of the Number Kingdom. Defeat the king!", chat: "Only the champion of BODMAS may pass!" }
     ];
 
     const sceneThemes = [
@@ -445,9 +713,19 @@
       { moon: "✨", tree: "🌳", bridge: "🏰", castle: "👑" }
     ];
 
-    let currentLevel = 0;
-    let score = 0;
-    let currentQuestion = null;
+    const state = {
+      currentLevel: 0,
+      score: 0,
+      timer: defaultTime,
+      currentQuestion: null,
+      intervalId: null,
+      playerName: "Player 1",
+      streak: 0,
+      bestStreak: 0,
+      active: false,
+      finished: false,
+      leaderboard: loadLeaderboard()
+    };
 
     const gameEl = document.getElementById("game");
     const sceneEl = document.getElementById("scene");
@@ -461,56 +739,56 @@
     const resultEl = document.getElementById("result");
     const levelBadge = document.getElementById("levelBadge");
     const scoreBadge = document.getElementById("scoreBadge");
+    const timerBadge = document.getElementById("timerBadge");
+    const roundValue = document.getElementById("roundValue");
+    const streakValue = document.getElementById("streakValue");
+    const leaderboardList = document.getElementById("leaderboardList");
+    const chatBubble = document.getElementById("chatBubble");
+    const startOverlay = document.getElementById("startOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const playerNameInput = document.getElementById("playerNameInput");
 
-    let audioCtx = null;
-
-    const sound = {
-      init() {
-        if (!audioCtx) {
-          const AudioCtx = window.AudioContext || window.webkitAudioContext;
-          audioCtx = new AudioCtx();
-        }
-      },
-
-      tone(freq, duration, type = "sine", gainLevel = 0.06) {
-        this.init();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = type;
-        oscillator.frequency.value = freq;
-
-        gainNode.gain.value = gainLevel;
-        gainNode.gain.setTargetAtTime(0.0001, audioCtx.currentTime + duration, 0.03);
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + duration);
-      },
-
-      correct() {
-        this.tone(660, 0.12, "triangle", 0.08);
-        setTimeout(() => this.tone(880, 0.14, "triangle", 0.07), 120);
-      },
-
-      wrong() {
-        this.tone(180, 0.18, "sawtooth", 0.07);
-      },
-
-      win() {
-        this.tone(523, 0.18, "triangle", 0.08);
-        setTimeout(() => this.tone(659, 0.18, "triangle", 0.08), 180);
-        setTimeout(() => this.tone(784, 0.22, "triangle", 0.08), 360);
+    function loadLeaderboard() {
+      try {
+        const saved = localStorage.getItem("bodmasLeaderboard");
+        return saved ? JSON.parse(saved) : [];
+      } catch (error) {
+        return [];
       }
-    };
+    }
 
-    document.body.addEventListener("pointerdown", () => {
-      if (audioCtx && audioCtx.state === "suspended") {
-        audioCtx.resume();
+    function saveLeaderboard() {
+      localStorage.setItem("bodmasLeaderboard", JSON.stringify(state.leaderboard.slice(0, 8)));
+    }
+
+    function renderLeaderboard() {
+      leaderboardList.innerHTML = "";
+      const top = state.leaderboard.slice(0, 5);
+      if (!top.length) {
+        const li = document.createElement("li");
+        li.innerHTML = `<span class="name"><span class="rank">#</span> No scores yet</span><span class="score">0</span>`;
+        leaderboardList.appendChild(li);
+        return;
       }
-    }, { once: true });
+
+      top.forEach((entry, index) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <span class="name"><span class="rank">${index + 1}</span> ${entry.name}</span>
+          <span class="score">${entry.score}</span>
+        `;
+        leaderboardList.appendChild(li);
+      });
+    }
+
+    function updateStatus() {
+      levelBadge.textContent = `Level ${state.currentLevel + 1} / ${totalLevels}`;
+      scoreBadge.textContent = `Score: ${state.score}`;
+      timerBadge.textContent = `Time: ${state.timer}s`;
+      timerBadge.classList.toggle("low", state.timer <= 20);
+      roundValue.textContent = `${state.currentLevel + 1} / ${totalLevels}`;
+      streakValue.textContent = String(state.bestStreak);
+    }
 
     function randomInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -585,53 +863,95 @@
       sceneEl.className = `scene scene-${levelIndex}`;
     }
 
+    function showChat(text) {
+      chatBubble.textContent = text;
+      chatBubble.classList.add("visible");
+      clearTimeout(showChat.timeoutId);
+      showChat.timeoutId = setTimeout(() => {
+        chatBubble.classList.remove("visible");
+      }, 2600);
+    }
+
     function buildLevel(levelIndex) {
       const obstacle = obstacleData[levelIndex];
-      currentQuestion = createQuestion(levelIndex);
+      state.currentQuestion = createQuestion(levelIndex);
+      state.currentLevel = levelIndex;
 
       setScene(levelIndex);
       obstacleIconEl.textContent = obstacle.icon;
       obstacleNameEl.textContent = obstacle.name;
       storyEl.textContent = obstacle.story;
-      questionEl.textContent = currentQuestion.question;
+      questionEl.textContent = state.currentQuestion.question;
       answerInput.value = "";
       answerInput.disabled = false;
       answerInput.focus();
 
+      showChat(obstacle.chat);
       resultEl.className = "result info";
-      resultEl.textContent = "Remember: Brackets, Orders, Division, Multiplication, Addition, Subtraction.";
+      resultEl.textContent = "Remember the order: Brackets, Orders, Division, Multiplication, Addition, Subtraction.";
 
       submitBtn.disabled = false;
       nextBtn.classList.add("hidden");
       nextBtn.textContent = "Next Level";
-
-      levelBadge.textContent = `Level ${levelIndex + 1} / ${totalLevels}`;
+      updateStatus();
     }
 
     function triggerSuccess() {
-      gameEl.classList.remove("success-glow");
-      void gameEl.offsetWidth;
-      gameEl.classList.add("success-glow");
-      sound.correct();
-
-      setTimeout(() => {
-        gameEl.classList.remove("success-glow");
-      }, 700);
+      const root = document.querySelector(".app-shell");
+      root.classList.remove("success-glow");
+      void root.offsetWidth;
+      root.classList.add("success-glow");
+      soundCorrect();
+      setTimeout(() => root.classList.remove("success-glow"), 700);
     }
 
     function triggerFail() {
-      gameEl.classList.remove("fail-glow");
-      void gameEl.offsetWidth;
-      gameEl.classList.add("fail-glow");
-      sound.wrong();
-      gameEl.classList.add("shake");
-      setTimeout(() => gameEl.classList.remove("shake"), 430);
-      setTimeout(() => {
-        gameEl.classList.remove("fail-glow");
-      }, 700);
+      const root = document.querySelector(".app-shell");
+      root.classList.remove("fail-glow");
+      void root.offsetWidth;
+      root.classList.add("fail-glow");
+      soundWrong();
+      root.classList.add("shake");
+      setTimeout(() => root.classList.remove("shake"), 430);
+      setTimeout(() => root.classList.remove("fail-glow"), 700);
     }
 
-    function handleSubmit() {
+    function soundCorrect() {
+      const init = () => {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = "triangle";
+        o.frequency.value = 660;
+        g.gain.value = 0.05;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + 0.12);
+        setTimeout(() => {
+          const o2 = ctx.createOscillator();
+          const g2 = ctx.createGain();
+          o2.type = "triangle"; o2.frequency.value = 880; g2.gain.value = 0.05;
+          o2.connect(g2); g2.connect(ctx.destination); o2.start(); o2.stop(ctx.currentTime + 0.14);
+        }, 120);
+      };
+      init();
+    }
+
+    function soundWrong() {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sawtooth"; o.frequency.value = 180; g.gain.value = 0.06;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); o.stop(ctx.currentTime + 0.15);
+    }
+
+    function submitAnswer() {
+      if (!state.active || state.finished) return;
+
       const value = Number(answerInput.value);
 
       if (answerInput.value === "" || Number.isNaN(value)) {
@@ -641,66 +961,132 @@
         return;
       }
 
-      if (value === currentQuestion.answer) {
-        score += 1;
-        scoreBadge.textContent = `Score: ${score}`;
+      if (value === state.currentQuestion.answer) {
+        state.score += 100 + Math.max(0, state.timer);
+        state.streak += 1;
+        state.bestStreak = Math.max(state.bestStreak, state.streak);
+        scoreBadge.textContent = `Score: ${state.score}`;
+        streakValue.textContent = String(state.bestStreak);
 
         resultEl.className = "result good";
         resultEl.textContent = "Correct! The obstacle is defeated and the path opens!";
-
+        showChat("Well done! You solved it!");
         triggerSuccess();
 
         submitBtn.disabled = true;
         nextBtn.classList.remove("hidden");
       } else {
+        state.streak = 0;
+        streakValue.textContent = String(state.bestStreak);
         resultEl.className = "result bad";
         resultEl.textContent = "Not quite. Re-check the BODMAS order and try again.";
+        showChat("Hmm... try the order of operations again.");
         triggerFail();
       }
     }
 
-    function handleNext() {
-      if (currentLevel < totalLevels - 1) {
-        currentLevel += 1;
-        buildLevel(currentLevel);
+    function handleNextLevel() {
+      if (state.finished) return;
+      if (state.currentLevel < totalLevels - 1) {
+        buildLevel(state.currentLevel + 1);
       } else {
-        finishGame();
+        endGame();
       }
     }
 
-    function finishGame() {
-      sound.win();
+    function tickTimer() {
+      if (!state.active || state.finished) return;
+      state.timer -= 1;
+      if (state.timer <= 0) {
+        state.timer = 0;
+        updateStatus();
+        endGame("Time is up! The adventure ends here.");
+        return;
+      }
+      updateStatus();
+    }
 
-      storyEl.textContent = "You completed all 8 levels and conquered the Number Kingdom.";
-      questionEl.textContent = "YOU WIN!";
+    function startTimer() {
+      clearInterval(state.intervalId);
+      state.intervalId = setInterval(tickTimer, 1000);
+    }
+
+    function addScoreToLeaderboard() {
+      const name = state.playerName.trim() || "Player";
+      state.leaderboard.push({ name, score: state.score });
+      state.leaderboard.sort((a, b) => b.score - a.score);
+      state.leaderboard = state.leaderboard.slice(0, 8);
+      saveLeaderboard();
+      renderLeaderboard();
+    }
+
+    function endGame(message = "The adventure is complete!") {
+      state.active = false;
+      state.finished = true;
+      clearInterval(state.intervalId);
+      addScoreToLeaderboard();
+
+      storyEl.textContent = message;
+      questionEl.textContent = "GAME OVER";
       resultEl.className = "result good";
-      resultEl.textContent = `Final score: ${score} / ${totalLevels}. You are a BODMAS champion!`;
+      resultEl.textContent = `Final score: ${state.score}. Your result has been added to the leaderboard.`;
       answerInput.disabled = true;
       answerInput.value = "";
       submitBtn.disabled = true;
       nextBtn.classList.remove("hidden");
       nextBtn.textContent = "Play Again";
-
-      nextBtn.onclick = () => {
-        currentLevel = 0;
-        score = 0;
-        scoreBadge.textContent = "Score: 0";
-        nextBtn.textContent = "Next Level";
-        nextBtn.onclick = handleNext;
-        buildLevel(0);
-      };
+      nextBtn.onclick = () => resetGame();
+      showChat("Great effort! Check the leaderboard.");
     }
 
+    function startGame() {
+      const rawName = playerNameInput.value.trim();
+      state.playerName = rawName || "Player 1";
+      state.score = 0;
+      state.timer = defaultTime;
+      state.currentLevel = 0;
+      state.streak = 0;
+      state.bestStreak = 0;
+      state.active = true;
+      state.finished = false;
+
+      startOverlay.classList.add("hidden");
+      buildLevel(0);
+      startTimer();
+      updateStatus();
+    }
+
+    function resetGame() {
+      state.score = 0;
+      state.timer = defaultTime;
+      state.currentLevel = 0;
+      state.streak = 0;
+      state.bestStreak = 0;
+      state.finished = false;
+      state.active = true;
+      startOverlay.classList.add("hidden");
+      buildLevel(0);
+      startTimer();
+      updateStatus();
+    }
+
+    startBtn.addEventListener("click", startGame);
+    playerNameInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") startGame();
+    });
+    submitBtn.addEventListener("click", submitAnswer);
+    nextBtn.addEventListener("click", handleNextLevel);
     answerInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        handleSubmit();
-      }
+      if (event.key === "Enter") submitAnswer();
     });
 
-    submitBtn.addEventListener("click", handleSubmit);
-    nextBtn.addEventListener("click", handleNext);
-
+    renderLeaderboard();
+    updateStatus();
     buildLevel(0);
+    state.active = false;
+    state.finished = false;
+    startOverlay.classList.remove("hidden");
+    showChat("Enter your name to start the classroom challenge!");
   </script>
 </body>
 </html>
